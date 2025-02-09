@@ -22,13 +22,15 @@ body {
 
 .content-div {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 
-.filters {
+.filters-div form {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 1rem;
