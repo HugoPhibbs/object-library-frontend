@@ -1,22 +1,21 @@
-"use client"
+"use client";
 
-import {SubmitHandler, useForm} from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { TextField, Button, Box } from "@mui/material";
 
 interface FormValues {
-    search: string;
+  search: string;
 }
 
 export default function SearchBar() {
-    const {register, handleSubmit} = useForm<FormValues>();
+  const { register, handleSubmit } = useForm<FormValues>();
 
-    const onSubmit : SubmitHandler<FormValues> = (data: FormValues) => console.log(data);
+  const onSubmit: SubmitHandler<FormValues> = (data) => console.log(data);
 
-    return (
-        <div className="search-bar-div">
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <input {...register("search")} placeholder="Search..."/>
-                <button type="submit">Submit</button>
-            </form>
-        </div>
-    );
+  return (
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+      <TextField {...register("search")} label="Search" variant="outlined" size="small" />
+      <Button type="submit" variant="contained">Submit</Button>
+    </Box>
+  );
 }
