@@ -20,7 +20,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.content-div {
+.content{
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -28,10 +28,21 @@ body {
     height: 100vh;
 }
 
-.filters-div form {
+.filter-options {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 1rem;
+}
+
+.search-objects-component {
+    display: flex;
+    flex-direction: row;
+}
+
+.search-filter {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
 }
