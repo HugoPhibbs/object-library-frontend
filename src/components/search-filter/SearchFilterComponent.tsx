@@ -96,33 +96,39 @@ function InputAndRangeSelector({register, formField, label, valueAsNumber}: {
                         {`${label}:`}
                     </FormLabel>
 
-                    {useRange ?
-                        <Box className="range-selector">
-                            <TextField {...register(`range.${encodeField(formField)}.min`, {valueAsNumber: valueAsNumber})}
-                                // onChange={handleRangeChange}
-                                       type="number"
-                                       label="Min"
-                                       variant="outlined"
-                                       className="input-text-field"/>
+                    <Box>
+                        {useRange ?
+                            <Box className="range-selector" >
+                                <TextField {...register(`range.${encodeField(formField)}.min`, {valueAsNumber: valueAsNumber})}
+                                    // onChange={handleRangeChange}
+                                           type="number"
+                                           label="Min"
+                                           variant="outlined"
+                                           className="input-text-field"/>
 
-                            <TextField {...register(`range.${encodeField(formField)}.max`, {valueAsNumber: valueAsNumber})}
-                                // onChange={handleRangeChange}
-                                       type="number"
-                                       label="Max"
-                                       variant="outlined"
-                                       className="input-text-field"/>
-                        </Box>
-                        :
-                        <TextField {...register(`exact.${encodeField(formField)}]`, {valueAsNumber: valueAsNumber})}
-                            // onChange={handleRangeChange}
-                                   type="number"
-                                   label={label}
-                                   variant="outlined"
-                                   className="input-text-field"
-                        />
-                    }
+                                <TextField {...register(`range.${encodeField(formField)}.max`, {valueAsNumber: valueAsNumber})}
+                                    // onChange={handleRangeChange}
+                                           type="number"
+                                           label="Max"
+                                           variant="outlined"
+                                           className="input-text-field"/>
+                            </Box>
+                            :
+                            <Box className="exact-selector">
+                                <TextField {...register(`exact.${encodeField(formField)}]`, {valueAsNumber: valueAsNumber})}
+                                    // onChange={handleRangeChange}
+                                           type="number"
+                                           label={label}
+                                           variant="outlined"
+                                           className="input-text-field"
+                                />
+                            </Box>
+                        }
+                    </Box>
 
-                    <FormControlLabel control={<Switch className="input-range-switch" defaultChecked onChange={() => setUseRange(!useRange)}/>}
+
+                    <FormControlLabel control={<Switch className="input-range-switch" defaultChecked
+                                                       onChange={() => setUseRange(!useRange)}/>}
                                       label="Exact/Range"/>
                 </Box>
 
@@ -159,18 +165,20 @@ export default function SearchFilter({
 
             <TextField {...register("material")} label="Material" variant="outlined"/>
 
-            <FormControl className="input-attributes-group">
-                <FormLabel className="input-attributes-group-label">Dimensions</FormLabel>
+            <Box className="outline-box">
+                <FormControl className="input-attributes-group">
+                    <FormLabel className="input-attributes-group-label">Dimensions</FormLabel>
 
-                <InputAndRangeSelector register={register} formField="Dimensions.Height" valueAsNumber={true}
-                                       label="Height"/>
+                    <InputAndRangeSelector register={register} formField="Dimensions.Height" valueAsNumber={true}
+                                           label="Height"/>
 
-                <InputAndRangeSelector register={register} formField="Dimensions.Width" valueAsNumber={true}
-                                       label="Width"/>
+                    <InputAndRangeSelector register={register} formField="Dimensions.Width" valueAsNumber={true}
+                                           label="Width"/>
 
-                <InputAndRangeSelector register={register} formField="Dimensions.Length" valueAsNumber={true}
-                                       label="Length"/>
-            </FormControl>
+                    <InputAndRangeSelector register={register} formField="Dimensions.Length" valueAsNumber={true}
+                                           label="Length"/>
+                </FormControl>
+            </Box>
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>
