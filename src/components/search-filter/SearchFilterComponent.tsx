@@ -2,7 +2,7 @@
 
 import api from "../../api";
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
-import {TextField, Button, Box, Switch, FormControlLabel, Slider} from "@mui/material";
+import {TextField, Button, Box, Switch, FormControlLabel, Slider, FormControl, FormLabel} from "@mui/material";
 import {useState} from "react";
 
 type FormField = "search" | "Material" | "Dimensions.Height" | "Dimensions.Width" | "Dimensions.Length" | "demofield";
@@ -80,9 +80,8 @@ export class FormValues {
     }
 }
 
-function InputAndRangeSelector({register, rangeControl, formField, label, valueAsNumber}: {
+function InputAndRangeSelector({register, formField, label, valueAsNumber}: {
     register: any,
-    rangeControl: any,
     formField: FormField,
     label: string,
     valueAsNumber: boolean
@@ -91,32 +90,44 @@ function InputAndRangeSelector({register, rangeControl, formField, label, valueA
 
     return (
         <Box className="exact-and-range-selector">
-            {useRange ?
-                <Controller
-                    name={`range.${encodeField(formField)}`}
-                    control={rangeControl} // connect Controller to the form
-                    defaultValue={[0, 10]} // set initial value
-                    render={({field}) => (
-                        <Slider
-                            {...field} // apply all the necessary form props to Slider
-                            // value={field.value || [0, 100]}
-                            onChange={(_, newValue) => field.onChange(newValue)}
-                            valueLabelDisplay="on"
-                            min={0}
-                            max={100}
-                        />
-                    )}
-                />
-                :
-                <TextField {...register(`exact.${encodeField(formField)}]`, {valueAsNumber: valueAsNumber})}
-                    // onChange={handleRangeChange}
-                           type="number"
-                           label={label}
-                           variant="outlined"/>
-            }
+            <FormControl component="fieldset">
+                <Box className="input-and-range-selector">
+                    <FormLabel component="legend" className="input-and-range-label">
+                        {`${label}:`}
+                    </FormLabel>
 
-            <FormControlLabel control={<Switch defaultChecked onChange={() => setUseRange(!useRange)}/>}
-                              label="Exact/Range"/>
+                    {useRange ?
+                        <Box className="range-selector">
+                            <TextField {...register(`range.${encodeField(formField)}.min`, {valueAsNumber: valueAsNumber})}
+                                // onChange={handleRangeChange}
+                                       type="number"
+                                       label="Min"
+                                       variant="outlined"
+                                       className="input-text-field"/>
+
+                            <TextField {...register(`range.${encodeField(formField)}.max`, {valueAsNumber: valueAsNumber})}
+                                // onChange={handleRangeChange}
+                                       type="number"
+                                       label="Max"
+                                       variant="outlined"
+                                       className="input-text-field"/>
+                        </Box>
+                        :
+                        <TextField {...register(`exact.${encodeField(formField)}]`, {valueAsNumber: valueAsNumber})}
+                            // onChange={handleRangeChange}
+                                   type="number"
+                                   label={label}
+                                   variant="outlined"
+                                   className="input-text-field"
+                        />
+                    }
+
+                    <FormControlLabel control={<Switch className="input-range-switch" defaultChecked onChange={() => setUseRange(!useRange)}/>}
+                                      label="Exact/Range"/>
+                </Box>
+
+
+            </FormControl>
         </Box>
     )
         ;
@@ -140,20 +151,26 @@ export default function SearchFilter({
 
     return (
         <Box component="form" onSubmit={handleSubmit(onSubmit)} className={"search-filter"}>
+            <h2 className={"search-filter-title"}>
+                Search and Filter
+            </h2>
+
             <TextField {...register("search")} label="Search" variant="outlined" size="small"/>
 
             <TextField {...register("material")} label="Material" variant="outlined"/>
 
-            {/*<InputAndRangeSelector register={register} formField="Dimensions.Height" valueAsNumber={true}*/}
-            {/*                       label="Height"/>*/}
+            <FormControl className="input-attributes-group">
+                <FormLabel className="input-attributes-group-label">Dimensions</FormLabel>
 
-            {/*<InputAndRangeSelector register={register} formField="Dimensions.Width" valueAsNumber={true}*/}
-            {/*                       label="Width"/>*/}
+                <InputAndRangeSelector register={register} formField="Dimensions.Height" valueAsNumber={true}
+                                       label="Height"/>
 
-            {/*<InputAndRangeSelector register={register} formField="Dimensions.Length" valueAsNumber={true}*/}
-            {/*                       label="Length"/>*/}
+                <InputAndRangeSelector register={register} formField="Dimensions.Width" valueAsNumber={true}
+                                       label="Width"/>
 
-            <InputAndRangeSelector register={register} rangeControl = {control} formField="demofield" valueAsNumber={true} label="demo"/>
+                <InputAndRangeSelector register={register} formField="Dimensions.Length" valueAsNumber={true}
+                                       label="Length"/>
+            </FormControl>
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>
