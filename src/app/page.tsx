@@ -1,5 +1,5 @@
 // import Image from "next/image";
-import SearchObjects from "@/components/search-filter/SearchObjectsComponent";
+import SearchObjects from "@/components/search-filter/SearchAndResultsComponent";
 
 import {Box} from "@mui/material"
 
