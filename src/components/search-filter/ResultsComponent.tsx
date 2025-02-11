@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import {saveAs} from 'file-saver';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -63,21 +63,24 @@ function DownloadCell({row}: { row: RowData }) {
     </TableCell>
 }
 
-function PhotoCell({ row }: { row: RowData }) {
+function PhotoCell({row}: { row: RowData }) {
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        api.get(`/object/${row.id}/photo`, {responseType: "blob"})
+            .then((response) => {
+                setImageUrl(URL.createObjectURL(response.data));
+            })
+            .catch((e) => console.error("Failed to download photo:", e));
+    }, [row.id]);
+
     return (
         <TableCell>
-            {api.get(`/object/${row.id}/photo`)
-                .then((apiResponse) => {
-                    const blob = new Blob([apiResponse.data]);
-                    return <Image src={URL.createObjectURL(blob)} alt="Object" />;
-                })
-                .catch((e) => {
-                    console.error("Failed to download photo: ", e);
-                    return null; // Or you can return an empty <TableCell/> here if you want
-                })}
+            {imageUrl ? <Image src={imageUrl} alt="Object" width={200} height={200}/> : "Loading..."}
         </TableCell>
     );
 }
+
 
 function Row({row}: { row: RowData }) {
     return (
