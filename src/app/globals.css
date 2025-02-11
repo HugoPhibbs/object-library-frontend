@@ -69,13 +69,20 @@ body {
     gap: 1rem;
 }
 
-.range-selector {
+.exact-selector {
+    justify-content: center !important;
+}
+
+.range-selector, .exact-selector{
     display: flex;
     flex-direction: row;
     gap: 1rem;
+    width: 13rem;
+    /*overflow: hidden;*/
 }
 
 .input-text-field {
+    width: 6rem
 }
 
 .input-and-range-selector {
@@ -104,4 +111,10 @@ body {
 
 .search-filter-title {
     font-size: 1.5rem;
+}
+
+.outline-box {
+    border: 1px solid #c4c4c4;
+    padding: 1rem;
+    border-radius: 0.3rem;
 }
