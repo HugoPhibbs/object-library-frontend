@@ -15,8 +15,6 @@ export default function SearchObjects() {
         try {
             const formValuesFlat = FormValues.toFlatObject(formValues)
 
-            console.log(formValuesFlat)
-
             const apiResponse = await api.get("/object/filter", {
                 params: formValuesFlat
             });
