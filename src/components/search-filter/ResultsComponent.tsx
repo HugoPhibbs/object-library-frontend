@@ -3,7 +3,7 @@ import {Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import {saveAs} from 'file-saver';
 import DownloadIcon from '@mui/icons-material/Download';
 import api from "@/api";
-
+import Image from "next/image";
 
 // Define columns
 
@@ -14,11 +14,12 @@ const columns = [
     {id: "material", label: "Material"},
     {id: "load_bearing", label: "Load Bearing"},
     {id: "form_factor", label: "Form Factor"},
+    {id: "photo", label: "Photo"},
     {id: "download", label: "Download"}
 ];
 
 // Type for row data
-interface Row {
+interface RowData {
     id: number;
     name: string;
     ifc_type: string;
@@ -27,7 +28,7 @@ interface Row {
     form_factor: string;
 }
 
-function parseSearchResults(data: any): Row[] {
+function parseSearchResults(data: any): RowData[] {
     if (data === undefined) {
         return [];
     }
@@ -44,9 +45,9 @@ function parseSearchResults(data: any): Row[] {
     });
 }
 
-function DownloadCell({row}: { row: Row }) {
+function DownloadCell({row}: { row: RowData }) {
 
-    async function handleDownload(row: Row) {
+    async function handleDownload(row: RowData) {
         try {
             const apiResponse = await api.get(`/object/${row.id}`)
             const blob = new Blob([apiResponse.data])
@@ -57,9 +58,40 @@ function DownloadCell({row}: { row: Row }) {
     }
 
     return <TableCell>
-        <Button variant="contained" size="small" startIcon={<DownloadIcon/>} onClick={() => handleDownload(row)}>Download
+        <Button variant="contained" size="small" startIcon={<DownloadIcon/>} onClick={() => handleDownload(row)}>IFC
         </Button>
     </TableCell>
+}
+
+function PhotoCell({ row }: { row: RowData }) {
+    return (
+        <TableCell>
+            {api.get(`/object/${row.id}/photo`)
+                .then((apiResponse) => {
+                    const blob = new Blob([apiResponse.data]);
+                    return <Image src={URL.createObjectURL(blob)} alt="Object" />;
+                })
+                .catch((e) => {
+                    console.error("Failed to download photo: ", e);
+                    return null; // Or you can return an empty <TableCell/> here if you want
+                })}
+        </TableCell>
+    );
+}
+
+function Row({row}: { row: RowData }) {
+    return (
+        <TableRow>
+            <TableCell>{row.id}</TableCell>
+            <TableCell>{row.name}</TableCell>
+            <TableCell>{row.ifc_type}</TableCell>
+            <TableCell>{row.material}</TableCell>
+            <TableCell>{row.load_bearing}</TableCell>
+            <TableCell>{row.form_factor}</TableCell>
+            <PhotoCell row={row}/>
+            <DownloadCell row={row}/>
+        </TableRow>
+    );
 }
 
 export default function Results({data}: any) {
@@ -79,16 +111,8 @@ export default function Results({data}: any) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.map((row: Row) => (
-                        <TableRow key={row.id}>
-                            <TableCell>{row.id}</TableCell>
-                            <TableCell>{row.name}</TableCell>
-                            <TableCell>{row.ifc_type}</TableCell>
-                            <TableCell>{row.material}</TableCell>
-                            <TableCell>{row.load_bearing ? 'True' : 'False'}</TableCell>
-                            <TableCell>{row.form_factor}</TableCell>
-                            <DownloadCell row={row}/>
-                        </TableRow>
+                    {data.map((row: RowData) => (
+                        <Row key={row.id} row={row}/>
                     ))}
                 </TableBody>
             </Table>
