@@ -24,8 +24,9 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: start;
     height: 100vh;
+    margin: 2vh;
 }
 
 .filter-options {
@@ -39,10 +40,68 @@ body {
 .search-objects-component {
     display: flex;
     flex-direction: row;
+    gap: 2rem
 }
 
 .search-filter {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    padding: 1rem;
+    width: 40rem
+}
+
+.title-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+}
+
+.exact-and-range-selector {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.range-selector {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.input-text-field {
+}
+
+.input-and-range-selector {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    gap: 1rem;
+}
+
+.input-and-range-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width:6rem
+}
+
+.input-attributes-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-attributes-group-label {
+    color: black !important;
+}
+
+.search-filter-title {
+    font-size: 1.5rem;
 }
