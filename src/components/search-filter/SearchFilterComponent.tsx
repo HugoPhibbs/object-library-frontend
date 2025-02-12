@@ -5,7 +5,34 @@ import {Controller, SubmitHandler, useForm} from "react-hook-form";
 import {TextField, Button, Box, Switch, FormControlLabel, Slider, FormControl, FormLabel} from "@mui/material";
 import {useState} from "react";
 
-type FormField = "search" | "material" | "Dimensions.Height" | "Dimensions.Width" | "Dimensions.Length" | "demofield";
+type FormField =
+    "search"
+    | "name"
+    | "material"
+    | "Dimensions.Height"
+    | "Dimensions.Width"
+    | "Dimensions.Length";
+
+type AttributeData = {
+    name: string,
+    useRange: boolean
+}
+
+type AttributeGroupData = {
+    id: string,
+    attributes: AttributeData[]
+}
+
+const attributeGroups: Record<string, AttributeGroupData> = {
+    "Dimensions": {
+        id: "Dimensions",
+        attributes: [
+            {name: "Height", useRange: true},
+            {name: "Width", useRange: true},
+            {name: "Length", useRange: true}
+        ]
+    },
+}
 
 function encodeField(field: FormField): string {
     return field.replace(".", "%2E");
@@ -60,9 +87,23 @@ export class FormValues {
             const min = formValues.range[typedKey].min;
             const max = formValues.range[typedKey].max;
 
-            if (FormValues.zeroOrTruthy(min) && FormValues.zeroOrTruthy(max)) {
-                result[`range_${decodeField(key)}`] = `${min}-${max}`;
+            if (!FormValues.zeroOrTruthy(min) && !FormValues.zeroOrTruthy(max)) {
+                continue;
             }
+
+            let result_string = "";
+
+            if (FormValues.zeroOrTruthy(min)) {
+                result_string += `${min}`;
+            }
+
+            result_string += "to";
+
+            if (FormValues.zeroOrTruthy(max)) {
+                result_string += `${max}`;
+            }
+
+            result[`range_${decodeField(key)}`] = result_string;
         }
 
         for (const key in formValues.exact) {
@@ -78,13 +119,80 @@ export class FormValues {
     }
 }
 
-function InputAndRangeSelector({register, formField, label, valueAsNumber}: {
+function RangeSelector({register, formField, valueAsNumber}: {
+    register: any,
+    formField: FormField,
+    valueAsNumber: boolean
+}) {
+    return (
+        <Box className="range-selector">
+            <TextField {...register(`range.${encodeField(formField)}.min`, {valueAsNumber: valueAsNumber})}
+                       type="number"
+                       label="Min"
+                       variant="outlined"
+                       className="input-text-field"/>
+
+            <TextField {...register(`range.${encodeField(formField)}.max`, {valueAsNumber: valueAsNumber})}
+                       type="number"
+                       label="Max"
+                       variant="outlined"
+                       className="input-text-field"/>
+        </Box>
+    )
+}
+
+function ExactSelector({register, formField, valueAsNumber, label}: {
+    register: any,
+    formField: FormField,
+    valueAsNumber: boolean,
+    label: string
+}) {
+    return (
+        <Box className="exact-selector">
+            <TextField {...register(`exact.${encodeField(formField)}]`, {valueAsNumber: valueAsNumber})}
+                // onChange={handleRangeChange}
+                       type="number"
+                       label={label}
+                       variant="outlined"
+                       className="input-text-field"
+            />
+        </Box>
+    )
+}
+
+function ExactAndRangeSelector({register, formField, label, valueAsNumber}: {
     register: any,
     formField: FormField,
     label: string,
     valueAsNumber: boolean
 }) {
     const [useRange, setUseRange] = useState(false);
+
+    return (
+        <>
+            <Box>
+                {useRange ?
+                    <RangeSelector register={register} formField={formField}
+                                   valueAsNumber={valueAsNumber}/>
+                    :
+                    <ExactSelector label={label} register={register} formField={formField}
+                                   valueAsNumber={valueAsNumber}/>}
+
+            </Box>
+            <FormControlLabel control={<Switch className="input-range-switch" defaultChecked
+                                               onChange={() => setUseRange(!useRange)}/>}
+                              label="Exact/Range"/>
+        </>
+    )
+}
+
+function InputSelector({register, formField, label, valueAsNumber, useRange}: {
+    register: any,
+    formField: FormField,
+    label: string,
+    valueAsNumber: boolean,
+    useRange: boolean
+}) {
 
     return (
         <Box className="exact-and-range-selector">
@@ -94,66 +202,38 @@ function InputAndRangeSelector({register, formField, label, valueAsNumber}: {
                         {`${label}:`}
                     </FormLabel>
 
-                    <Box>
-                        {useRange ?
-                            <Box className="range-selector">
-                                <TextField {...register(`range.${encodeField(formField)}.min`, {valueAsNumber: valueAsNumber})}
-                                    // onChange={handleRangeChange}
-                                           type="number"
-                                           label="Min"
-                                           variant="outlined"
-                                           className="input-text-field"/>
-
-                                <TextField {...register(`range.${encodeField(formField)}.max`, {valueAsNumber: valueAsNumber})}
-                                    // onChange={handleRangeChange}
-                                           type="number"
-                                           label="Max"
-                                           variant="outlined"
-                                           className="input-text-field"/>
-                            </Box>
-                            :
-                            <Box className="exact-selector">
-                                <TextField {...register(`exact.${encodeField(formField)}]`, {valueAsNumber: valueAsNumber})}
-                                    // onChange={handleRangeChange}
-                                           type="number"
-                                           label={label}
-                                           variant="outlined"
-                                           className="input-text-field"
-                                />
-                            </Box>
-                        }
-                    </Box>
-
-
-                    <FormControlLabel control={<Switch className="input-range-switch" defaultChecked
-                                                       onChange={() => setUseRange(!useRange)}/>}
-                                      label="Exact/Range"/>
+                    {useRange ?
+                        <ExactAndRangeSelector register={register} formField={formField}
+                                               label={label} valueAsNumber={valueAsNumber}/> :
+                        <ExactSelector label={label} register={register} formField={formField}
+                                       valueAsNumber={valueAsNumber}/>
+                    }
                 </Box>
-
-
             </FormControl>
         </Box>
     )
         ;
 }
 
-function AttributeGroupFilters({register, group_name, attributes}: {
+function AttributeGroupFilters({register, group_name}: {
     register: any,
-    group_name: string,
-    attributes: string[]
+    group_name: string
 }) {
+    const attributeGroup = attributeGroups[group_name];
+    const attributes = attributeGroup.attributes;
 
     return (
         <Box className="outline-box">
             <FormControl className="input-attributes-group">
-                <FormLabel className="input-attributes-group-label">Dimensions</FormLabel>
+                <FormLabel className="input-attributes-group-label">{group_name}</FormLabel>
 
                 {attributes.map((attribute) => {
-                    const field = `${group_name}.${attribute}` as FormField;
+                    const field = `${attributeGroup.id}.${attribute.name}` as FormField;
 
-                    return <InputAndRangeSelector key={field} register={register} formField={field}
-                                                  valueAsNumber={true}
-                                                  label={attribute}/>
+                    return <InputSelector key={field} register={register} formField={field}
+                                          valueAsNumber={true}
+                                          label={attribute.name}
+                                          useRange={attribute.useRange}/>
                 })}
             </FormControl>
         </Box>
@@ -181,12 +261,13 @@ export default function SearchFilter({
                 Search and Filter
             </h2>
 
-            <TextField {...register("search")} label="Search" variant="outlined" size="small"/>
+            <TextField {...register("search")} label="Search" variant="outlined"/>
+
+            <TextField {...register("match.name")} label="Name" variant="outlined"/>
 
             <TextField {...register("match.material")} label="Material" variant="outlined"/>
 
-            <AttributeGroupFilters register={register} group_name="Dimensions"
-                                   attributes={["Height", "Width", "Length"]}/>
+            <AttributeGroupFilters register={register} group_name="Dimensions"/>
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>
