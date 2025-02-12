@@ -118,3 +118,10 @@ body {
     padding: 1rem;
     border-radius: 0.3rem;
 }
+
+.table-column-header-cell {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    padding: 1rem !important;
+}
