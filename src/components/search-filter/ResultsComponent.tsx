@@ -28,10 +28,12 @@ interface RowData {
     form_factor: string;
 }
 
-function parseSearchResults(data: any): RowData[] {
+function parseSearchResults(data: any[]): RowData[] {
     if (data === undefined) {
         return [];
     }
+
+    data.sort((a, b) => a._score - b._score);
 
     return data.map((row: any) => {
         return {
@@ -101,7 +103,7 @@ export default function Results({data}: any) {
 
     data = parseSearchResults(data);
 
-    console.log(data)
+    // console.log(data)
 
     return (
         <TableContainer>

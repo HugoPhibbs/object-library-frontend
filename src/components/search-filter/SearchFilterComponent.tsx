@@ -5,7 +5,7 @@ import {Controller, SubmitHandler, useForm} from "react-hook-form";
 import {TextField, Button, Box, Switch, FormControlLabel, Slider, FormControl, FormLabel} from "@mui/material";
 import {useState} from "react";
 
-type FormField = "search" | "Material" | "Dimensions.Height" | "Dimensions.Width" | "Dimensions.Length" | "demofield";
+type FormField = "search" | "material" | "Dimensions.Height" | "Dimensions.Width" | "Dimensions.Length" | "demofield";
 
 function encodeField(field: FormField): string {
     return field.replace(".", "%2E");
@@ -15,37 +15,22 @@ function decodeField(field: string): FormField {
     return field.replace("%2E", ".") as FormField;
 }
 
-type FormValues2 = {
-    search: string,
-    material: string,
-    range: {
-        "Dimensions.Height": [number, number],
-        "Dimensions.Width": [number, number],
-        "Dimensions.Length": [number, number]
-    },
-    exact: {
-        "Dimensions.Height": number,
-        "Dimensions.Width": number,
-        "Dimensions.Length": number
-    }
-}
-
 export class FormValues {
 
     search: string;
-    material: string;
     range: Record<FormField, { min: number, max: number }>;
     exact: Record<FormField, number>;
+    match: Record<FormField, string>;
 
 
-    constructor(search: string, material: string, range: Record<FormField, {
-        min: number,
-        max: number
-    }>, exact: Record<FormField, number>) {
+    constructor(search: string,
+                range: Record<FormField, { min: number, max: number }>,
+                exact: Record<FormField, number>,
+                match: Record<FormField, string>) {
         this.search = search;
-        this.material = material;
         this.range = range;
         this.exact = exact;
+        this.match = match;
     }
 
     static zeroOrTruthy(value: any): boolean {
@@ -55,7 +40,20 @@ export class FormValues {
     static toFlatObject(formValues: FormValues): any {
         console.log(formValues);
 
-        const result: any = {"Material": formValues.material, "search": formValues.search};
+        const result: any = {};
+
+        if (FormValues.zeroOrTruthy(formValues.search)) {
+            result["search"] = formValues.search;
+        }
+
+        for (const key in formValues.match) {
+            const typedKey = key as FormField;
+            const value = formValues.match[typedKey];
+
+            if (FormValues.zeroOrTruthy(value)) {
+                result[`match_${decodeField(key)}`] = formValues.match[typedKey];
+            }
+        }
 
         for (const key in formValues.range) {
             const typedKey = key as FormField;
@@ -157,14 +155,6 @@ function AttributeGroupFilters({register, group_name, attributes}: {
                                                   valueAsNumber={true}
                                                   label={attribute}/>
                 })}
-                {/*<InputAndRangeSelector register={register} formField="Dimensions.Height" valueAsNumber={true}*/}
-                {/*                       label="Height"/>*/}
-
-                {/*<InputAndRangeSelector register={register} formField="Dimensions.Width" valueAsNumber={true}*/}
-                {/*                       label="Width"/>*/}
-
-                {/*<InputAndRangeSelector register={register} formField="Dimensions.Length" valueAsNumber={true}*/}
-                {/*                       label="Length"/>*/}
             </FormControl>
         </Box>
     )
@@ -175,10 +165,9 @@ export default function SearchFilter({
                                      }: {
     handleFilterSubmitToParent: (formValues: FormValues) => void
 }) {
-    const {register, handleSubmit, control} = useForm<FormValues>({
+    const {register, handleSubmit} = useForm<FormValues>({
         defaultValues: {
-            search: "",
-            material: ""
+            search: ""
         }
     });
 
@@ -194,9 +183,10 @@ export default function SearchFilter({
 
             <TextField {...register("search")} label="Search" variant="outlined" size="small"/>
 
-            <TextField {...register("material")} label="Material" variant="outlined"/>
+            <TextField {...register("match.material")} label="Material" variant="outlined"/>
 
-            <AttributeGroupFilters register={register} group_name="Dimensions" attributes={["Height", "Width", "Length"]} />
+            <AttributeGroupFilters register={register} group_name="Dimensions"
+                                   attributes={["Height", "Width", "Length"]}/>
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>
