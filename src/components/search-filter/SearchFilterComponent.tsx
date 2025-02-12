@@ -98,7 +98,7 @@ function InputAndRangeSelector({register, formField, label, valueAsNumber}: {
 
                     <Box>
                         {useRange ?
-                            <Box className="range-selector" >
+                            <Box className="range-selector">
                                 <TextField {...register(`range.${encodeField(formField)}.min`, {valueAsNumber: valueAsNumber})}
                                     // onChange={handleRangeChange}
                                            type="number"
@@ -139,6 +139,37 @@ function InputAndRangeSelector({register, formField, label, valueAsNumber}: {
         ;
 }
 
+function AttributeGroupFilters({register, group_name, attributes}: {
+    register: any,
+    group_name: string,
+    attributes: string[]
+}) {
+
+    return (
+        <Box className="outline-box">
+            <FormControl className="input-attributes-group">
+                <FormLabel className="input-attributes-group-label">Dimensions</FormLabel>
+
+                {attributes.map((attribute) => {
+                    const field = `${group_name}.${attribute}` as FormField;
+
+                    return <InputAndRangeSelector key={field} register={register} formField={field}
+                                                  valueAsNumber={true}
+                                                  label={attribute}/>
+                })}
+                {/*<InputAndRangeSelector register={register} formField="Dimensions.Height" valueAsNumber={true}*/}
+                {/*                       label="Height"/>*/}
+
+                {/*<InputAndRangeSelector register={register} formField="Dimensions.Width" valueAsNumber={true}*/}
+                {/*                       label="Width"/>*/}
+
+                {/*<InputAndRangeSelector register={register} formField="Dimensions.Length" valueAsNumber={true}*/}
+                {/*                       label="Length"/>*/}
+            </FormControl>
+        </Box>
+    )
+}
+
 export default function SearchFilter({
                                          handleFilterSubmitToParent
                                      }: {
@@ -165,20 +196,7 @@ export default function SearchFilter({
 
             <TextField {...register("material")} label="Material" variant="outlined"/>
 
-            <Box className="outline-box">
-                <FormControl className="input-attributes-group">
-                    <FormLabel className="input-attributes-group-label">Dimensions</FormLabel>
-
-                    <InputAndRangeSelector register={register} formField="Dimensions.Height" valueAsNumber={true}
-                                           label="Height"/>
-
-                    <InputAndRangeSelector register={register} formField="Dimensions.Width" valueAsNumber={true}
-                                           label="Width"/>
-
-                    <InputAndRangeSelector register={register} formField="Dimensions.Length" valueAsNumber={true}
-                                           label="Length"/>
-                </FormControl>
-            </Box>
+            <AttributeGroupFilters register={register} group_name="Dimensions" attributes={["Height", "Width", "Length"]} />
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>
