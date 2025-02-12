@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import {
+    Box,
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TableSortLabel
+} from '@mui/material';
 import {saveAs} from 'file-saver';
 import DownloadIcon from '@mui/icons-material/Download';
 import api from "@/api";
@@ -7,15 +17,21 @@ import Image from "next/image";
 
 // Define columns
 
-const columns = [
-    {id: 'id', label: 'ID'},
-    {id: 'name', label: 'Name'},
-    {id: "ifc_type", label: "IFC Type"},
-    {id: "material", label: "Material"},
-    {id: "load_bearing", label: "Load Bearing"},
-    {id: "form_factor", label: "Form Factor"},
-    {id: "photo", label: "Photo"},
-    {id: "download", label: "Download"}
+type ColumnData = {
+    id: string;
+    label: string;
+    canSort: boolean;
+}
+
+const columns: ColumnData[] = [
+    {id: 'id', label: 'ID', canSort: false},
+    {id: 'name', label: 'Name', canSort: false},
+    {id: "ifc_type", label: "IFC Type", canSort: false},
+    {id: "material", label: "Material", canSort: false},
+    {id: "load_bearing", label: "Load Bearing", canSort: true},
+    {id: "form_factor", label: "Form Factor", canSort: true},
+    {id: "photo", label: "Photo", canSort: false},
+    {id: "download", label: "Download", canSort: false},
 ];
 
 // Type for row data
@@ -24,7 +40,7 @@ interface RowData {
     name: string;
     ifc_type: string;
     material: string;
-    load_bearing: string;
+    load_bearing: boolean;
     form_factor: string;
 }
 
@@ -83,6 +99,9 @@ function PhotoCell({row}: { row: RowData }) {
     );
 }
 
+function booleanToYesNo(value: boolean): string {
+    return value ? "Yes" : "No";
+}
 
 function Row({row}: { row: RowData }) {
     return (
@@ -91,7 +110,7 @@ function Row({row}: { row: RowData }) {
             <TableCell>{row.name}</TableCell>
             <TableCell>{row.ifc_type}</TableCell>
             <TableCell>{row.material}</TableCell>
-            <TableCell>{row.load_bearing}</TableCell>
+            <TableCell>{booleanToYesNo(row.load_bearing)}</TableCell>
             <TableCell>{row.form_factor}</TableCell>
             <PhotoCell row={row}/>
             <DownloadCell row={row}/>
@@ -101,9 +120,16 @@ function Row({row}: { row: RowData }) {
 
 export default function Results({data}: any) {
 
+    const [orderBy, setOrderBy] = useState("id");
+    const [order, setOrder] = useState<"asc" | "desc">("asc");
+
     data = parseSearchResults(data);
 
-    // console.log(data)
+    console.log(data)
+
+    const sortedData = data.sort((a: any, b: any) => {
+        return order === "asc" ? a[orderBy] - b[orderBy] : b[orderBy] - a[orderBy];
+    });
 
     return (
         <TableContainer>
@@ -111,12 +137,25 @@ export default function Results({data}: any) {
                 <TableHead>
                     <TableRow>
                         {columns.map((column) => (
-                            <TableCell key={column.id}>{column.label}</TableCell>
+                            // TODO, find a way to disable sorting, i.e. toggle asc, desc, none
+                            <TableCell key={column.id} className={"table-column-header-cell"}>
+                                {column.canSort ?
+                                    <TableSortLabel
+                                        active={orderBy === "id"}
+                                        direction={order}
+                                        onClick={() => {
+                                            setOrderBy(column.id);
+                                            setOrder(order === "asc" ? "desc" : "asc");
+                                        }}>
+                                    {column.label}
+                                    </TableSortLabel> :
+                                    <Box>{column.label}</Box>}
+                            </TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.map((row: RowData) => (
+                    {sortedData.map((row: RowData) => (
                         <Row key={row.id} row={row}/>
                     ))}
                 </TableBody>
