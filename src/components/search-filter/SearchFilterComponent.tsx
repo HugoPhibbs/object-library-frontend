@@ -2,8 +2,21 @@
 
 import api from "../../api";
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
-import {TextField, Button, Box, Switch, FormControlLabel, Slider, FormControl, FormLabel} from "@mui/material";
+import {
+    TextField,
+    Button,
+    Box,
+    Switch,
+    FormControlLabel,
+    Slider,
+    FormControl,
+    FormLabel,
+    Collapse, IconButton
+} from "@mui/material";
 import {useState} from "react";
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 type FormField =
     "search"
@@ -14,24 +27,46 @@ type FormField =
     | "Dimensions.Length";
 
 type AttributeData = {
-    name: string,
+    id: string,
+    label: string,
     useRange: boolean
 }
 
 type AttributeGroupData = {
-    id: string,
+    label: string,
     attributes: AttributeData[]
 }
 
 const attributeGroups: Record<string, AttributeGroupData> = {
     "Dimensions": {
-        id: "Dimensions",
+        label: "Dimensions",
         attributes: [
-            {name: "Height", useRange: true},
-            {name: "Width", useRange: true},
-            {name: "Length", useRange: true}
+            {id: "Height", label: "Height", useRange: true},
+            {id: "Width", label: "Width", useRange: true},
+            {id: "Length", label: "Length", useRange: true},
+            {id: "Flange Thickness", label: "Flange Thickness", useRange: true},
+            {id: "Web Thickness", label: "Web Thickness", useRange: true},
         ]
     },
+    "Pset_EnvironmentalImpactIndicators": {
+        label: "Environmental Impact",
+        attributes: [
+            {id: "ExpectedServiceLife", label: "Expected Service Life", useRange: true},
+            {id: "WaterConsumptionPerUnit", label: "Water Consumption", useRange: true},
+            {id: "ClimateChangePerUnit", label: "eCO2 emissions", useRange: true},
+            {id: "RenewableEnergyConsumptionPerUnit", label: "Renewable Energy Consumption", useRange: true},
+            {id: "NonRenewableEnergyConsumptionPerUnit", label: "Non-Renewable Energy Consumption", useRange: true}
+        ]
+    },
+    "Structural Analysis": {
+        label: "Structural Analysis",
+        attributes: [
+            {id: "Form Factor", label: "Form Factor", useRange: false},
+            {id: "Elastic Modulus strong axis", label: "Elastic Modulus Strong Axis", useRange: true},
+            {id: "Tensile Strength", label: "Tensile Strength", useRange: true},
+            {id: "Warping Constant", label: "Warping Constant", useRange: true},
+        ]
+    }
 }
 
 function encodeField(field: FormField): string {
@@ -166,21 +201,19 @@ function ExactAndRangeSelector({register, formField, label, valueAsNumber}: {
     label: string,
     valueAsNumber: boolean
 }) {
-    const [useRange, setUseRange] = useState(false);
+    const [useRangeOrExact, setUseRangeOrExact] = useState(false);
 
     return (
         <>
-            <Box>
-                {useRange ?
-                    <RangeSelector register={register} formField={formField}
-                                   valueAsNumber={valueAsNumber}/>
-                    :
-                    <ExactSelector label={label} register={register} formField={formField}
-                                   valueAsNumber={valueAsNumber}/>}
+            {useRangeOrExact ?
+                <RangeSelector register={register} formField={formField}
+                               valueAsNumber={valueAsNumber}/>
+                :
+                <ExactSelector label={label} register={register} formField={formField}
+                               valueAsNumber={valueAsNumber}/>}
 
-            </Box>
             <FormControlLabel control={<Switch className="input-range-switch" defaultChecked
-                                               onChange={() => setUseRange(!useRange)}/>}
+                                               onChange={() => setUseRangeOrExact(!useRangeOrExact)}/>}
                               label="Exact/Range"/>
         </>
     )
@@ -195,9 +228,9 @@ function InputSelector({register, formField, label, valueAsNumber, useRange}: {
 }) {
 
     return (
-        <Box className="exact-and-range-selector">
+        <Box className="input-selector">
             <FormControl component="fieldset">
-                <Box className="input-and-range-selector">
+                <Box className="input-selector-form">
                     <FormLabel component="legend" className="input-and-range-label">
                         {`${label}:`}
                     </FormLabel>
@@ -215,26 +248,52 @@ function InputSelector({register, formField, label, valueAsNumber, useRange}: {
         ;
 }
 
-function AttributeGroupFilters({register, group_name}: {
+function AttributeGroupFilters({register, attribute_group_id}: {
     register: any,
-    group_name: string
+    attribute_group_id: string
 }) {
-    const attributeGroup = attributeGroups[group_name];
+    const [open, setOpen] = useState(false);
+
+    const handleToggle = () => {
+        setOpen(!open);
+    }
+
+    const attributeGroup = attributeGroups[attribute_group_id];
     const attributes = attributeGroup.attributes;
 
     return (
         <Box className="outline-box">
-            <FormControl className="input-attributes-group">
-                <FormLabel className="input-attributes-group-label">{group_name}</FormLabel>
+            <FormControl>
+                {/*<FormLabel className="input-attributes-group-label">{attributeGroup.label}</FormLabel>*/}
 
-                {attributes.map((attribute) => {
-                    const field = `${attributeGroup.id}.${attribute.name}` as FormField;
+                <FormLabel className="input-attributes-group-label">
+                    <Box display="flex" alignItems="center">
 
-                    return <InputSelector key={field} register={register} formField={field}
-                                          valueAsNumber={true}
-                                          label={attribute.name}
-                                          useRange={attribute.useRange}/>
-                })}
+                        <Button startIcon={open ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>} onClick={handleToggle}
+                                sx={{
+                                    textTransform: 'none',
+                                    color: 'inherit', // Inheri
+                                    fontWeight: 'normal',
+                                    // padding: "1rem"
+                                }}>
+                            {attributeGroup.label}
+                        </Button>
+                    </Box>
+                </FormLabel>
+
+                <Collapse in={open}>
+                    <Box className="input-attributes-group">
+                        {attributes.map((attribute) => {
+                            const field = `${attribute_group_id}.${attribute.id}` as FormField;
+
+                            return <InputSelector key={field} register={register} formField={field}
+                                                  valueAsNumber={true}
+                                                  label={attribute.label}
+                                                  useRange={attribute.useRange}/>
+                        })}
+                    </Box>
+                </Collapse>
+
             </FormControl>
         </Box>
     )
@@ -267,7 +326,11 @@ export default function SearchFilter({
 
             <TextField {...register("match.material")} label="Material" variant="outlined"/>
 
-            <AttributeGroupFilters register={register} group_name="Dimensions"/>
+            <AttributeGroupFilters register={register} attribute_group_id="Dimensions"/>
+
+            <AttributeGroupFilters register={register} attribute_group_id="Pset_EnvironmentalImpactIndicators"/>
+
+            <AttributeGroupFilters register={register} attribute_group_id="Structural Analysis"/>
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>
