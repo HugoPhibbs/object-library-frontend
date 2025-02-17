@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import SearchFilter from './SearchFilterComponent';
 import Results from './ResultsComponent';
 import Box from '@mui/material/Box';
@@ -10,6 +10,12 @@ import {FormValues} from "@/components/search-filter/SearchFilterComponent";
 export default function SearchObjects() {
 
     const [results, setResults] = React.useState([]);
+
+    useEffect(() => {
+        api.get("/object")
+            .then((response) => setResults(response.data))
+            .catch((error) => console.error("Failed to get objects: ", error));
+    }, []);
 
     async function handleFilterSubmit(formValues: FormValues) {
         try {
