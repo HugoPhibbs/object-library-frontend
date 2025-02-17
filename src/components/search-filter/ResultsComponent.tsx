@@ -17,7 +17,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import api from "@/api";
 import Image from "next/image";
 import Link from "next/link";
-import {ObjectImage} from "@/components/common";
+import {IfcDownloadTableCell, ObjectImage} from "@/components/common";
 
 // Define columns
 
@@ -67,28 +67,6 @@ function parseSearchResults(data: any[]): RowData[] {
     });
 }
 
-function DownloadCell({row}: { row: RowData }) {
-
-    async function handleDownload(row: RowData) {
-        try {
-            const apiResponse = await api.get(`/object/${row.id}`)
-            const blob = new Blob([apiResponse.data])
-            saveAs(blob, `${row.id}.ifc`)
-        } catch (e) {
-            console.error("Failed to download file: ", e)
-        }
-    }
-
-    return <TableCell>
-        <Button variant="contained" size="small" startIcon={<DownloadIcon/>} onClick={() => handleDownload(row)}>IFC
-        </Button>
-    </TableCell>
-}
-
-function booleanToYesNo(value: boolean): string {
-    return value ? "Yes" : "No";
-}
-
 function Row({row}: { row: RowData }) {
     return (
         <TableRow>
@@ -101,7 +79,7 @@ function Row({row}: { row: RowData }) {
             <TableCell>
                 <ObjectImage object_id={row.id} width={200} height={200}/>
             </TableCell>
-            <DownloadCell row={row}/>
+            <IfcDownloadTableCell object_id={row.id}/>
         </TableRow>
     );
 }
@@ -127,7 +105,7 @@ export default function Results({data}: any) {
 
     return (
         <TableContainer>
-            <Table>
+            <Table className={"data-table"}>
                 <TableHead>
                     <TableRow>
                         {columns.map((column) => (
