@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {
     Box,
     Button,
+    Link as MuiLink,
     Table,
     TableBody,
     TableCell,
@@ -12,8 +13,11 @@ import {
 } from '@mui/material';
 import {saveAs} from 'file-saver';
 import DownloadIcon from '@mui/icons-material/Download';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import api from "@/api";
 import Image from "next/image";
+import Link from "next/link";
+import {ObjectImage} from "@/components/common";
 
 // Define columns
 
@@ -26,17 +30,17 @@ type ColumnData = {
 const columns: ColumnData[] = [
     {id: 'id', label: 'ID', canSort: false},
     {id: 'name', label: 'Name', canSort: false},
-    {id: "ifc_type", label: "IFC Type", canSort: false},
+    // {id: "ifc_type", label: "IFC Type", canSort: false},
     {id: "material", label: "Material", canSort: false},
-    {id: "load_bearing", label: "Load Bearing", canSort: true},
-    {id: "form_factor", label: "Form Factor", canSort: true},
+    // {id: "load_bearing", label: "Load Bearing", canSort: true},
+    // {id: "form_factor", label: "Form Factor", canSort: true},
     {id: "photo", label: "Photo", canSort: false},
     {id: "download", label: "Download", canSort: false},
 ];
 
 // Type for row data
 interface RowData {
-    id: number;
+    id: string;
     name: string;
     ifc_type: string;
     material: string;
@@ -81,24 +85,6 @@ function DownloadCell({row}: { row: RowData }) {
     </TableCell>
 }
 
-function PhotoCell({row}: { row: RowData }) {
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        api.get(`/object/${row.id}/photo`, {responseType: "blob"})
-            .then((response) => {
-                setImageUrl(URL.createObjectURL(response.data));
-            })
-            .catch((e) => console.error("Failed to download photo:", e));
-    }, [row.id]);
-
-    return (
-        <TableCell>
-            {imageUrl ? <Image src={imageUrl} alt="Object" width={200} height={200}/> : "Loading..."}
-        </TableCell>
-    );
-}
-
 function booleanToYesNo(value: boolean): string {
     return value ? "Yes" : "No";
 }
@@ -106,16 +92,24 @@ function booleanToYesNo(value: boolean): string {
 function Row({row}: { row: RowData }) {
     return (
         <TableRow>
-            <TableCell>{row.id}</TableCell>
+            <TableCell><ViewObjectLink object_id={row.id}/></TableCell>
             <TableCell>{row.name}</TableCell>
-            <TableCell>{row.ifc_type}</TableCell>
+            {/*<TableCell>{row.ifc_type}</TableCell>*/}
             <TableCell>{row.material}</TableCell>
-            <TableCell>{booleanToYesNo(row.load_bearing)}</TableCell>
-            <TableCell>{row.form_factor}</TableCell>
-            <PhotoCell row={row}/>
+            {/*<TableCell>{booleanToYesNo(row.load_bearing)}</TableCell>*/}
+            {/*<TableCell>{row.form_factor}</TableCell>*/}
+            <TableCell>
+                <ObjectImage object_id={row.id} width={200} height={200}/>
+            </TableCell>
             <DownloadCell row={row}/>
         </TableRow>
     );
+}
+
+function ViewObjectLink({object_id}: { object_id: string }) {
+    return <MuiLink component={Link} href={`/object/${object_id}`} underline="always">
+        {object_id} <OpenInNewIcon fontSize="small" sx={{ml: 0.5}}/>
+    </MuiLink>
 }
 
 export default function Results({data}: any) {
@@ -147,7 +141,7 @@ export default function Results({data}: any) {
                                             setOrderBy(column.id);
                                             setOrder(order === "asc" ? "desc" : "asc");
                                         }}>
-                                    {column.label}
+                                        {column.label}
                                     </TableSortLabel> :
                                     <Box>{column.label}</Box>}
                             </TableCell>
