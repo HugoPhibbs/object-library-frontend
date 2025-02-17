@@ -29,7 +29,8 @@ body {
     flex-direction: row;
     justify-content: center;
     align-items: start;
-    height: 100rem;
+    width: auto;
+    height: auto;
     /*width: 100%;*/
     margin: 2rem;
     padding: 2rem;
@@ -46,6 +47,7 @@ body {
 .search-objects-component {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
     gap: 2rem
 }
 
@@ -54,12 +56,15 @@ body {
     flex-direction: column;
     gap: 1rem;
     padding: 1rem;
-    width: 40rem
+    width: 40rem;
+    height: auto;
+    border: 1px solid #c4c4c4;
+    border-radius: 0.3rem;
 }
 
 .title-box {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 1rem;
@@ -68,6 +73,12 @@ body {
 .title {
     font-size: 2rem;
 }
+
+.sub-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
 
 /*.input-selector {*/
 /*    display: flex;*/
@@ -138,7 +149,12 @@ body {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    padding: 1rem !important;
+    padding: 0.5rem !important;
+    background-color: #DCDCDC;
+}
+
+.data-table {
+    border: 1px solid #c4c4c4;
 }
 
 .search-filter-header {
@@ -161,4 +177,13 @@ body {
 .view-object-component {
     display: flex;
     flex-direction: column;
+}
+
+.main-description-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #c4c4c4;
+    border-radius: 0.3rem;
 }
