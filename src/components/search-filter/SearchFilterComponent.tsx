@@ -11,7 +11,7 @@ import {
     Slider,
     FormControl,
     FormLabel,
-    Collapse, IconButton
+    Collapse, IconButton, InputAdornment
 } from "@mui/material";
 import {useState} from "react";
 
@@ -30,6 +30,19 @@ type AttributeData = {
     id: string,
     label: string,
     useRange: boolean
+    fieldType?: string
+    units?: UnitsToAdornment
+}
+
+enum UnitsToAdornment {
+    WEIGHT = "kg",
+    LENGTH = "mm",
+    ELECTRIC_ENERGY = "kWh",
+    TENSILE_STRENGTH = "MPa/mm^2",
+    WARPING_CONSTANT = "mm^6",
+    MODULUS = "MPa",
+    VOLUME = "m^3",
+    TIME_YEARS = "yrs"
 }
 
 type AttributeGroupData = {
@@ -37,34 +50,85 @@ type AttributeGroupData = {
     attributes: AttributeData[]
 }
 
+const primaryFilters: Record<string, AttributeData> = {
+    "search": {
+        id: "search",
+        label: "Search",
+        fieldType: "text",
+        useRange: false
+    },
+    "name": {
+        id: "name",
+        label: "Name",
+        fieldType: "text",
+        useRange: false
+    },
+    "material": {
+        id: "material",
+        label: "Material",
+        fieldType: "text",
+        useRange: false
+    }
+}
+
 const attributeGroups: Record<string, AttributeGroupData> = {
     "Dimensions": {
         label: "Dimensions",
         attributes: [
-            {id: "Height", label: "Height", useRange: true},
-            {id: "Width", label: "Width", useRange: true},
-            {id: "Length", label: "Length", useRange: true},
-            {id: "Flange Thickness", label: "Flange Thickness", useRange: true},
-            {id: "Web Thickness", label: "Web Thickness", useRange: true},
+            {id: "Height", label: "Height", useRange: true, units: UnitsToAdornment.LENGTH},
+            {id: "Width", label: "Width", useRange: true, units: UnitsToAdornment.LENGTH},
+            {id: "Length", label: "Length", useRange: true, units: UnitsToAdornment.LENGTH},
+            {id: "Flange Thickness", label: "Flange Thickness", useRange: true, units: UnitsToAdornment.LENGTH},
+            {id: "Web Thickness", label: "Web Thickness", useRange: true, units: UnitsToAdornment.LENGTH},
         ]
     },
     "Pset_EnvironmentalImpactIndicators": {
         label: "Environmental Impact",
         attributes: [
-            {id: "ExpectedServiceLife", label: "Expected Service Life", useRange: true},
-            {id: "WaterConsumptionPerUnit", label: "Water Consumption", useRange: true},
-            {id: "ClimateChangePerUnit", label: "eCO2 emissions", useRange: true},
-            {id: "RenewableEnergyConsumptionPerUnit", label: "Renewable Energy Consumption", useRange: true},
-            {id: "NonRenewableEnergyConsumptionPerUnit", label: "Non-Renewable Energy Consumption", useRange: true}
+            {
+                id: "ExpectedServiceLife",
+                label: "Expected Service Life",
+                useRange: true,
+                units: UnitsToAdornment.TIME_YEARS
+            },
+            {id: "WaterConsumptionPerUnit", label: "Water Consumption", useRange: true, units: UnitsToAdornment.VOLUME},
+            {id: "ClimateChangePerUnit", label: "eCO2 emissions", useRange: true, units: UnitsToAdornment.WEIGHT},
+            {
+                id: "RenewableEnergyConsumptionPerUnit",
+                label: "Renewable Energy Consumption",
+                useRange: true,
+                units: UnitsToAdornment.ELECTRIC_ENERGY
+            },
+            {
+                id: "NonRenewableEnergyConsumptionPerUnit",
+                label: "Non-Renewable Energy Consumption",
+                useRange: true,
+                units: UnitsToAdornment.ELECTRIC_ENERGY
+            },
         ]
     },
     "Structural Analysis": {
         label: "Structural Analysis",
         attributes: [
             {id: "Form Factor", label: "Form Factor", useRange: false},
-            {id: "Elastic Modulus strong axis", label: "Elastic Modulus Strong Axis", useRange: true},
-            {id: "Tensile Strength", label: "Tensile Strength", useRange: true},
-            {id: "Warping Constant", label: "Warping Constant", useRange: true},
+            {
+                id: "Elastic Modulus strong axis",
+                label: "Elastic Modulus Strong Axis",
+                useRange: true,
+                units: UnitsToAdornment.MODULUS
+            },
+            {
+                id: "Tensile Strength",
+                label: "Tensile Strength",
+                useRange: true,
+                units: UnitsToAdornment.TENSILE_STRENGTH
+            },
+            {
+                id: "Warping Constant",
+                label: "Warping Constant",
+                useRange: true,
+                units: UnitsToAdornment.WARPING_CONSTANT
+            },
         ]
     }
 }
@@ -79,7 +143,7 @@ function decodeField(field: string): FormField {
 
 export class FormValues {
 
-    search: string;
+    search?: string;
     range: Record<FormField, { min: number, max: number }>;
     exact: Record<FormField, number>;
     match: Record<FormField, string>;
@@ -154,63 +218,48 @@ export class FormValues {
     }
 }
 
-function RangeSelector({register, formField, valueAsNumber}: {
-    register: any,
+function RangeSelector({control, formField, attributeData}: {
+    control: any
     formField: FormField,
-    valueAsNumber: boolean
+    attributeData: AttributeData
 }) {
     return (
         <Box className="range-selector">
-            <TextField {...register(`range.${encodeField(formField)}.min`, {valueAsNumber: valueAsNumber})}
-                       type="number"
-                       label="Min"
-                       variant="outlined"
-                       className="input-text-field"/>
+            <ControllableTextField name={`range.${encodeField(formField)}.min`} control={control}
+                                   attributeData={attributeData} labelOverride={"Min"}/>
 
-            <TextField {...register(`range.${encodeField(formField)}.max`, {valueAsNumber: valueAsNumber})}
-                       type="number"
-                       label="Max"
-                       variant="outlined"
-                       className="input-text-field"/>
+            <ControllableTextField name={`range.${encodeField(formField)}.max`} control={control}
+                                   attributeData={attributeData} labelOverride={"Max"}/>
         </Box>
     )
 }
 
-function ExactSelector({register, formField, valueAsNumber, label}: {
-    register: any,
+function ExactSelector({control, formField, attributeData, labelOverride="Value"}: {
+    control: any
     formField: FormField,
-    valueAsNumber: boolean,
-    label: string
+    attributeData: AttributeData,
+    labelOverride?: string
 }) {
     return (
         <Box className="exact-selector">
-            <TextField {...register(`exact.${encodeField(formField)}]`, {valueAsNumber: valueAsNumber})}
-                // onChange={handleRangeChange}
-                       type="number"
-                       label={label}
-                       variant="outlined"
-                       className="input-text-field"
-            />
+            <ControllableTextField name={`exact.${encodeField(formField)}`} control={control} attributeData={attributeData} labelOverride={labelOverride}/>
         </Box>
     )
 }
 
-function ExactAndRangeSelector({register, formField, label, valueAsNumber}: {
-    register: any,
+function ExactAndRangeSelector({control, formField, attributeData}: {
+    control: any,
     formField: FormField,
-    label: string,
-    valueAsNumber: boolean
+    attributeData: AttributeData
 }) {
     const [useRangeOrExact, setUseRangeOrExact] = useState(false);
 
     return (
         <>
             {useRangeOrExact ?
-                <RangeSelector register={register} formField={formField}
-                               valueAsNumber={valueAsNumber}/>
+                <RangeSelector control={control} formField={formField} attributeData={attributeData}/>
                 :
-                <ExactSelector label={label} register={register} formField={formField}
-                               valueAsNumber={valueAsNumber}/>}
+                <ExactSelector control={control} formField={formField} attributeData={attributeData}/>}
 
             <FormControlLabel control={<Switch className="input-range-switch" defaultChecked
                                                onChange={() => setUseRangeOrExact(!useRangeOrExact)}/>}
@@ -219,12 +268,10 @@ function ExactAndRangeSelector({register, formField, label, valueAsNumber}: {
     )
 }
 
-function InputSelector({register, formField, label, valueAsNumber, useRange}: {
-    register: any,
+function InputSelector({control, formField, attributeData}: {
+    control: any
     formField: FormField,
-    label: string,
-    valueAsNumber: boolean,
-    useRange: boolean
+    attributeData: AttributeData
 }) {
 
     return (
@@ -232,14 +279,12 @@ function InputSelector({register, formField, label, valueAsNumber, useRange}: {
             <FormControl component="fieldset">
                 <Box className="input-selector-form">
                     <FormLabel component="legend" className="input-and-range-label">
-                        {`${label}:`}
+                        {`${attributeData.units ? `${attributeData.label} (${attributeData.units})`: attributeData.label}:`}
                     </FormLabel>
 
-                    {useRange ?
-                        <ExactAndRangeSelector register={register} formField={formField}
-                                               label={label} valueAsNumber={valueAsNumber}/> :
-                        <ExactSelector label={label} register={register} formField={formField}
-                                       valueAsNumber={valueAsNumber}/>
+                    {attributeData.useRange ?
+                        <ExactAndRangeSelector control={control} formField={formField} attributeData={attributeData}/> :
+                        <ExactSelector control={control} formField={formField} attributeData={attributeData}/>
                     }
                 </Box>
             </FormControl>
@@ -248,8 +293,9 @@ function InputSelector({register, formField, label, valueAsNumber, useRange}: {
         ;
 }
 
-function AttributeGroupFilters({register, attribute_group_id}: {
+function AttributeGroupFilters({register, control, attribute_group_id}: {
     register: any,
+    control: any,
     attribute_group_id: string
 }) {
     const [open, setOpen] = useState(false);
@@ -270,12 +316,7 @@ function AttributeGroupFilters({register, attribute_group_id}: {
                     <Box display="flex" alignItems="center">
 
                         <Button startIcon={open ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>} onClick={handleToggle}
-                                sx={{
-                                    textTransform: 'none',
-                                    color: 'inherit', // Inheri
-                                    fontWeight: 'normal',
-                                    // padding: "1rem"
-                                }}>
+                                className={"attribute-group-label-button"}>
                             {attributeGroup.label}
                         </Button>
                     </Box>
@@ -286,10 +327,11 @@ function AttributeGroupFilters({register, attribute_group_id}: {
                         {attributes.map((attribute) => {
                             const field = `${attribute_group_id}.${attribute.id}` as FormField;
 
-                            return <InputSelector key={field} register={register} formField={field}
-                                                  valueAsNumber={true}
-                                                  label={attribute.label}
-                                                  useRange={attribute.useRange}/>
+                            return <InputSelector key={field}
+                                                  control={control}
+                                                  formField={field}
+                                                  attributeData={attribute}
+                            />
                         })}
                     </Box>
                 </Collapse>
@@ -299,14 +341,52 @@ function AttributeGroupFilters({register, attribute_group_id}: {
     )
 }
 
+function ControllableTextField({
+                                   name,
+                                   control,
+                                   attributeData,
+                                   fieldType = "number",
+                                   className = "small-input-text-field",
+                                   labelOverride
+                               }: {
+    name: string,
+    control: any,
+    attributeData: AttributeData,
+    fieldType?: string
+    className?: string
+    labelOverride?: string
+}) {
+    return (
+        <Controller
+            defaultValue=""
+            name={name}
+            control={control}
+            render={({field}) => (
+                <TextField {...field}
+                           label={labelOverride ? labelOverride : attributeData.label}
+                           variant="outlined"
+                           type={fieldType}
+                           className={className}
+                           // slotProps={{
+                           //     input: {
+                           //         startAdornment: <InputAdornment
+                           //             position={"start"}>{attributeData.units}</InputAdornment>
+                           //     }
+                           // }}
+                />
+            )}
+        />
+    );
+}
+
 export default function SearchFilter({
                                          handleFilterSubmitToParent
                                      }: {
     handleFilterSubmitToParent: (formValues: FormValues) => void
 }) {
-    const {register, handleSubmit} = useForm<FormValues>({
+    const {register, handleSubmit, reset, watch, control} = useForm<FormValues>({
         defaultValues: {
-            search: ""
+            search: undefined,
         }
     });
 
@@ -314,23 +394,33 @@ export default function SearchFilter({
         handleFilterSubmitToParent(data);
     };
 
+    const handleReset = () => {
+        reset();
+    }
+
     return (
         <Box component="form" onSubmit={handleSubmit(onSubmit)} className={"search-filter"}>
-            <h2 className={"search-filter-title"}>
-                Search and Filter
-            </h2>
+            <Box className={"search-filter-header"}>
+                <h2 className={"search-filter-title"}>
+                    Search and Filter
+                </h2>
 
-            <TextField {...register("search")} label="Search" variant="outlined"/>
+                <Button type="button" onClick={handleReset} variant="outlined" color="error">Reset</Button>
+            </Box>
 
-            <TextField {...register("match.name")} label="Name" variant="outlined"/>
+            <ControllableTextField name={"match.search"} control={control} attributeData={primaryFilters.search}
+                                   className={"large-input-text-field"}/>
 
-            <TextField {...register("match.material")} label="Material" variant="outlined"/>
+            <ControllableTextField name={"match.name"} control={control} attributeData={primaryFilters.name}
+                                   className={"large-input-text-field"}/>
 
-            <AttributeGroupFilters register={register} attribute_group_id="Dimensions"/>
+            <ControllableTextField name={"match.material"} control={control} attributeData={primaryFilters.material}
+                                   className={"large-input-text-field"}/>
 
-            <AttributeGroupFilters register={register} attribute_group_id="Pset_EnvironmentalImpactIndicators"/>
-
-            <AttributeGroupFilters register={register} attribute_group_id="Structural Analysis"/>
+            {Object.entries(attributeGroups).map(([attribute_group_id, _]) => (
+                <AttributeGroupFilters key={attribute_group_id} register={register} control={control}
+                                       attribute_group_id={attribute_group_id}/>
+            ))}
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>
