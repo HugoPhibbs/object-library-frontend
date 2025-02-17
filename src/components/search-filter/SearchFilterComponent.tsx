@@ -26,7 +26,7 @@ type FormField =
     | "Dimensions.Width"
     | "Dimensions.Length";
 
-type AttributeData = {
+type AttributeMetadata = {
     id: string,
     label: string,
     useRange: boolean
@@ -45,12 +45,12 @@ enum UnitsToAdornment {
     TIME_YEARS = "yrs"
 }
 
-type AttributeGroupData = {
+type AttributeGroupMetadata = {
     label: string,
-    attributes: AttributeData[]
+    attributes: AttributeMetadata[]
 }
 
-const primaryFilters: Record<string, AttributeData> = {
+const primaryFilters: Record<string, AttributeMetadata> = {
     "search": {
         id: "search",
         label: "Search",
@@ -71,7 +71,7 @@ const primaryFilters: Record<string, AttributeData> = {
     }
 }
 
-const attributeGroups: Record<string, AttributeGroupData> = {
+const attributeGroups: Record<string, AttributeGroupMetadata> = {
     "Dimensions": {
         label: "Dimensions",
         attributes: [
@@ -221,7 +221,7 @@ export class FormValues {
 function RangeSelector({control, formField, attributeData}: {
     control: any
     formField: FormField,
-    attributeData: AttributeData
+    attributeData: AttributeMetadata
 }) {
     return (
         <Box className="range-selector">
@@ -237,7 +237,7 @@ function RangeSelector({control, formField, attributeData}: {
 function ExactSelector({control, formField, attributeData, labelOverride="Value"}: {
     control: any
     formField: FormField,
-    attributeData: AttributeData,
+    attributeData: AttributeMetadata,
     labelOverride?: string
 }) {
     return (
@@ -250,7 +250,7 @@ function ExactSelector({control, formField, attributeData, labelOverride="Value"
 function ExactAndRangeSelector({control, formField, attributeData}: {
     control: any,
     formField: FormField,
-    attributeData: AttributeData
+    attributeData: AttributeMetadata
 }) {
     const [useRangeOrExact, setUseRangeOrExact] = useState(false);
 
@@ -271,7 +271,7 @@ function ExactAndRangeSelector({control, formField, attributeData}: {
 function InputSelector({control, formField, attributeData}: {
     control: any
     formField: FormField,
-    attributeData: AttributeData
+    attributeData: AttributeMetadata
 }) {
 
     return (
@@ -351,7 +351,7 @@ function ControllableTextField({
                                }: {
     name: string,
     control: any,
-    attributeData: AttributeData,
+    attributeData: AttributeMetadata,
     fieldType?: string
     className?: string
     labelOverride?: string
