@@ -4,10 +4,15 @@ import React, {useEffect, useState} from 'react';
 import api from "@/api";
 import Image from "next/image";
 import {saveAs} from "file-saver";
-import {Button, TableCell} from "@mui/material";
+import {Box, Button, MenuItem, Select, TableCell} from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 
-export function ObjectImage({object_id, width, height}: { object_id: string, width: number, height: number }) {
+export function ObjectImage({object_id, width, height, imgClassName}: {
+    object_id: string,
+    width: number,
+    height: number,
+    imgClassName?: string
+}) {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     const apiURL = `/object/${object_id}/photo`;
@@ -24,19 +29,35 @@ export function ObjectImage({object_id, width, height}: { object_id: string, wid
         return <span>Loading...</span>;
     }
 
-    return <Image src={imageUrl} alt="Object" width={width} height={height}/>;
+    return <Image src={imageUrl} alt="Object" width={width} height={height} className={imgClassName}/>;
 }
 
-export function DownloadTableCell({object_id, handleDownload, label}: {
+export function DownloadTableCell({object_id, handleDownload, label, dropdownOptions}: {
     object_id: string,
     handleDownload: any,
-    label: string
+    label: string,
+    dropdownOptions?: string[]
 }) {
 
-    return <TableCell>
-        <Button variant="contained" size="small" startIcon={<DownloadIcon/>}
-                onClick={() => handleDownload(object_id)}>{label}
-        </Button>
+    const [dropdownOption, setDropdownOption] = useState<string[]>([]);
+
+    const handleDropdownChange = (event:any) => {
+        setDropdownOption(event.target.value as string[]);
+    }
+
+    return <TableCell className={"download-table-cell"}>
+        <Box>
+            {dropdownOptions ?
+                (<Select value={dropdownOption} onChange={handleDropdownChange} label={"Choose Option"} >
+                    {dropdownOptions.map((option, index) => (<MenuItem key={index}>{option}</MenuItem>))}
+                </Select>)
+                : null
+            }
+
+            <Button variant="contained" size="small" startIcon={<DownloadIcon/>}
+                    onClick={() => handleDownload(object_id)}>{label}
+            </Button>
+        </Box>
     </TableCell>
 }
 
