@@ -1,114 +1,163 @@
 "use client"
 
 import {useParams} from "next/navigation";
-import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import Grid from "@mui/material/Grid2"
-import SearchObjects from "@/components/search-filter/SearchAndResultsComponent";
-import Image from "next/image";
-import React, {useEffect} from "react";
+import React, {Fragment, useEffect} from "react";
 import {DownloadTableCell, IfcDownloadTableCell, ObjectImage} from "@/components/common"
 import api from "@/api";
 
 import _ from 'lodash';
 import {grey} from "@mui/material/colors";
-import {booleanToYesNo} from "@/utils";
-import DownloadIcon from "@mui/icons-material/Download";
+import {booleanToYesNo, formatUnits, UnitsToString} from "@/utils";
 
 const mainDescriptionTableAttributes = [
     {label: "ID", object_path: "_id"},
     {label: "IFC Type", object_path: "_source.ifc_type"},
+    {label: "Manufacturer", object_path: "_source.property_sets.Identity Data.Manufacturer.value"},
     {label: "Material", object_path: "_source.material"},
-    {label: "Load Bearing", object_path: "_source.property_sets.Pset_BeamCommon.LoadBearing.value", isBoolean: true},
-    {label: "Form Factor", object_path: "_source.property_sets[\"Structural Analysis\"][\"Form Factor\"].value"},
+    {label: "Load Bearing", object_path: "_source.property_sets.Pset_BeamCommon.LoadBearing.value", isBoolean: true}
 ]
 
-function MainDescriptionTable({currObject}: { currObject: object }) {
-    return (
-        <Box>
-            <h2>
-                Main Attributes
-            </h2>
+const detailedDescriptionTableAttributes = {
+    "Structural": [
+        {label: "Section Shape", object_path: "_source.property_sets.Structural.Section Shape.value", units: null},
+        {
+            label: "Cut Length",
+            object_path: "_source.property_sets.Structural.Cut Length.value",
+            units: UnitsToString.LENGTH
+        },
+        {
+            label: "Maximum Length",
+            object_path: "_source.property_sets.Structural.MaximumLength_ANZRS.value",
+            units: UnitsToString.LENGTH
+        },
+    ],
+    "Identity Data": [
+        {label: "Assembly Code", object_path: "_source.property_sets.Identity Data.Assembly Code.value", units: null},
+        {label: "Model", object_path: "_source.property_sets.Identity Data.Model.value", units: null}
+    ],
+    "Structural Analysis": [
+        {
+            label: "Elastic Modulus strong axis",
+            object_path: "_source.property_sets.Structural Analysis.Elastic Modulus strong axis.value",
+            units: UnitsToString.MODULUS
+        },
+        {
+            label: "Elastic Modulus weak axis",
+            object_path: "_source.property_sets.Structural Analysis.Elastic Modulus weak axis.value",
+            units: UnitsToString.MODULUS
+        },
+        {label: "Form Factor", object_path: "_source.property_sets.Structural Analysis.Form Factor.value", units: null},
+        {
+            label: "Nominal Weight",
+            object_path: "_source.property_sets.Structural Analysis.Nominal Weight.value",
+            units: UnitsToString.WEIGHT
+        },
+        {
+            label: "Section Area",
+            object_path: "_source.property_sets.Structural Analysis.Section Area.value",
+            units: UnitsToString.AREA
+        },
+    ]
+};
 
-            <TableContainer>
+
+function TableWithTitle({title, children}: { title: string, children: React.ReactNode }) {
+    return (
+        <Box className="table-with-title">
+            <h2>{title}</h2>
+            <TableContainer sx={{width: "auto"}}>
                 <Table className={"data-table"}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell className={"table-column-header-cell"}>Attribute</TableCell>
-                            <TableCell className={"table-column-header-cell"}>Value</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {mainDescriptionTableAttributes.map((attribute, index) => {
-                                const value = _.get(currObject, attribute.object_path);
-                                return (
-                                    <TableRow key={index}>
-                                        <TableCell>{attribute.label}</TableCell>
-                                        <TableCell>{attribute.isBoolean ? booleanToYesNo(value) : value}</TableCell>
-                                    </TableRow>
-                                )
-                            }
-                        )}
-                    </TableBody>
+                    {children}
                 </Table>
             </TableContainer>
         </Box>
-    )
+    );
+}
+
+function MainAttributeTable({currObject}: { currObject: object }) {
+    return (
+        <TableWithTitle title="Main Attributes">
+            <TableHead>
+                <TableRow>
+                    <TableCell className={"table-column-header-cell"}>Attribute</TableCell>
+                    <TableCell className={"table-column-header-cell"}>Value</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {mainDescriptionTableAttributes.map((attribute, index) => {
+                    const value = _.get(currObject, attribute.object_path);
+                    return (
+                        <TableRow key={index}>
+                            <TableCell>{attribute.label}</TableCell>
+                            <TableCell>{attribute.isBoolean ? booleanToYesNo(value) : value}</TableCell>
+                        </TableRow>
+                    );
+                })}
+            </TableBody>
+        </TableWithTitle>
+    );
+}
+
+function DetailedAttributeTable({currObject}: { currObject: any }) {
+    return (
+        <TableWithTitle title="Further Attributes">
+            <TableBody>
+                {Object.entries(detailedDescriptionTableAttributes).map(([groupName, attributes], groupIndex) => (
+                    <Fragment key={groupIndex}>
+                        <TableRow>
+                            <TableCell colSpan={2} style={{backgroundColor: grey[200]}}>
+                                {groupName}
+                            </TableCell>
+                        </TableRow>
+                        {attributes.map((attribute, index) => {
+                            const value = _.get(currObject, attribute.object_path);
+                            return (
+                                <TableRow key={Object.keys(detailedDescriptionTableAttributes).length * groupIndex + index}>
+                                    <TableCell>{attribute.label}</TableCell>
+                                    <TableCell>
+                                        {value} <Typography variant={"inherit"} component="span" fontWeight="bold">{attribute.units}</Typography>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </Fragment>
+                ))}
+            </TableBody>
+        </TableWithTitle>
+    );
 }
 
 function ObjectFilesTable({currObject}: { currObject: any }) {
     return (
-        <Box>
-            <h2>
-                Object Files
-            </h2>
-
-            <TableContainer>
-                <Table className={"data-table"}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell className={"table-column-header-cell"}>File Name</TableCell>
-                            <TableCell className={"table-column-header-cell"}>Download</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>
-                                IFC File
-                            </TableCell>
-
-                            <IfcDownloadTableCell object_id={currObject?._id}/>
-                        </TableRow>
-
-                        <TableRow>
-                            <TableCell>
-                                Inspection Records
-                            </TableCell>
-
-                            <DownloadTableCell object_id={currObject?._id} handleDownload={(id: any) => null}
-                                               label={"PDF"}/>
-                        </TableRow>
-
-                        <TableRow>
-                            <TableCell>
-                                Manufacturer&#39;s Booklet
-                            </TableCell>
-
-                            <DownloadTableCell object_id={currObject?._id} handleDownload={(id: any) => null}
-                                               label={"PDF"}/>
-                        </TableRow>
-
-                        <TableRow>
-                            <TableCell>
-                                Environmental Impact Assessment
-                            </TableCell>
-
-                            <DownloadTableCell object_id={currObject?._id} handleDownload={(id: any) => null}
-                                               label={"PDF"}/>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Box>
+        <TableWithTitle title="Object Files">
+            <TableHead>
+                <TableRow>
+                    <TableCell className={"table-column-header-cell"}>File Name</TableCell>
+                    <TableCell className={"table-column-header-cell"}>Download</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                <TableRow>
+                    <TableCell>IFC File</TableCell>
+                    <IfcDownloadTableCell object_id={currObject?._id}/>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Inspection Records</TableCell>
+                    <DownloadTableCell object_id={currObject?._id} handleDownload={(id: any) => null} label={"PDF"}
+                                       dropdownOptions={["Nov 24", "Nov 23", "Nov 22"]}/>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Manufacturer&#39;s Booklet</TableCell>
+                    <DownloadTableCell object_id={currObject?._id} handleDownload={(id: any) => null} label={"PDF"}/>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Environmental Impact Assessment</TableCell>
+                    <DownloadTableCell object_id={currObject?._id} handleDownload={(id: any) => null} label={"PDF"}/>
+                </TableRow>
+            </TableBody>
+        </TableWithTitle>
     )
 }
 
@@ -132,18 +181,22 @@ export default function ViewObject() {
 
             <Box className={"content"}>
                 <Grid container spacing={2} sx={{height: "60rem", width: "80rem"}}>
-                    <Grid size={4} className={"outline-box"}>
-                        <ObjectImage object_id={object_id} width={500} height={500}/>
+                    <Grid size={4}>
+                        <ObjectImage object_id={object_id} width={500} height={500} imgClassName={"outline-box"}/>
                     </Grid>
 
                     <Grid size={8} className={"main-description-box outline-box"}>
                         <h2 className={"sub-title"}>{currObject?._source.name}</h2>
-                        <MainDescriptionTable currObject={currObject}/>
-                        <ObjectFilesTable currObject={currObject}/>
+
+                        <Box sx={{display: "flex", flexDirection: "row", gap: "1rem", justifyContent: "space-around"}}>
+                            <MainAttributeTable currObject={currObject}/>
+                            <ObjectFilesTable currObject={currObject}/>
+                        </Box>
+
                     </Grid>
 
                     <Grid size={12} className={"outline-box"}>
-                        <div style={{backgroundColor: 'lightgreen', height: '100%'}}>Item 3 (100%)</div>
+                        <DetailedAttributeTable currObject={currObject}/>
                     </Grid>
                 </Grid>
             </Box>
