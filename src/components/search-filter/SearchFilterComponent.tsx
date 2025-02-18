@@ -1,22 +1,12 @@
 "use client";
 
-import api from "../../api";
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
-import {
-    TextField,
-    Button,
-    Box,
-    Switch,
-    FormControlLabel,
-    Slider,
-    FormControl,
-    FormLabel,
-    Collapse, IconButton, InputAdornment
-} from "@mui/material";
+import {Box, Button, Collapse, FormControl, FormControlLabel, FormLabel, Switch, TextField} from "@mui/material";
 import {useState} from "react";
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import {UnitsToString} from "@/utils";
 
 type FormField =
     "search"
@@ -31,18 +21,7 @@ type AttributeMetadata = {
     label: string,
     useRange: boolean
     fieldType?: string
-    units?: UnitsToAdornment
-}
-
-enum UnitsToAdornment {
-    WEIGHT = "kg",
-    LENGTH = "mm",
-    ELECTRIC_ENERGY = "kWh",
-    TENSILE_STRENGTH = "MPa/mm^2",
-    WARPING_CONSTANT = "mm^6",
-    MODULUS = "MPa",
-    VOLUME = "m^3",
-    TIME_YEARS = "yrs"
+    units?: UnitsToString
 }
 
 type AttributeGroupMetadata = {
@@ -75,11 +54,11 @@ const attributeGroups: Record<string, AttributeGroupMetadata> = {
     "Dimensions": {
         label: "Dimensions",
         attributes: [
-            {id: "Height", label: "Height", useRange: true, units: UnitsToAdornment.LENGTH},
-            {id: "Width", label: "Width", useRange: true, units: UnitsToAdornment.LENGTH},
-            {id: "Length", label: "Length", useRange: true, units: UnitsToAdornment.LENGTH},
-            {id: "Flange Thickness", label: "Flange Thickness", useRange: true, units: UnitsToAdornment.LENGTH},
-            {id: "Web Thickness", label: "Web Thickness", useRange: true, units: UnitsToAdornment.LENGTH},
+            {id: "Height", label: "Height", useRange: true, units: UnitsToString.LENGTH},
+            {id: "Width", label: "Width", useRange: true, units: UnitsToString.LENGTH},
+            {id: "Length", label: "Length", useRange: true, units: UnitsToString.LENGTH},
+            {id: "Flange Thickness", label: "Flange Thickness", useRange: true, units: UnitsToString.LENGTH},
+            {id: "Web Thickness", label: "Web Thickness", useRange: true, units: UnitsToString.LENGTH},
         ]
     },
     "Pset_EnvironmentalImpactIndicators": {
@@ -89,21 +68,21 @@ const attributeGroups: Record<string, AttributeGroupMetadata> = {
                 id: "ExpectedServiceLife",
                 label: "Expected Service Life",
                 useRange: true,
-                units: UnitsToAdornment.TIME_YEARS
+                units: UnitsToString.TIME_YEARS
             },
-            {id: "WaterConsumptionPerUnit", label: "Water Consumption", useRange: true, units: UnitsToAdornment.VOLUME},
-            {id: "ClimateChangePerUnit", label: "eCO2 emissions", useRange: true, units: UnitsToAdornment.WEIGHT},
+            {id: "WaterConsumptionPerUnit", label: "Water Consumption", useRange: true, units: UnitsToString.VOLUME},
+            {id: "ClimateChangePerUnit", label: "eCO2 emissions", useRange: true, units: UnitsToString.WEIGHT},
             {
                 id: "RenewableEnergyConsumptionPerUnit",
                 label: "Renewable Energy Consumption",
                 useRange: true,
-                units: UnitsToAdornment.ELECTRIC_ENERGY
+                units: UnitsToString.ELECTRIC_ENERGY
             },
             {
                 id: "NonRenewableEnergyConsumptionPerUnit",
                 label: "Non-Renewable Energy Consumption",
                 useRange: true,
-                units: UnitsToAdornment.ELECTRIC_ENERGY
+                units: UnitsToString.ELECTRIC_ENERGY
             },
         ]
     },
@@ -115,19 +94,19 @@ const attributeGroups: Record<string, AttributeGroupMetadata> = {
                 id: "Elastic Modulus strong axis",
                 label: "Elastic Modulus Strong Axis",
                 useRange: true,
-                units: UnitsToAdornment.MODULUS
+                units: UnitsToString.MODULUS
             },
             {
                 id: "Tensile Strength",
                 label: "Tensile Strength",
                 useRange: true,
-                units: UnitsToAdornment.TENSILE_STRENGTH
+                units: UnitsToString.TENSILE_STRENGTH
             },
             {
                 id: "Warping Constant",
                 label: "Warping Constant",
                 useRange: true,
-                units: UnitsToAdornment.WARPING_CONSTANT
+                units: UnitsToString.WARPING_CONSTANT
             },
         ]
     }
