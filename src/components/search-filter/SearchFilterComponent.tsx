@@ -346,6 +346,12 @@ function ControllableTextField({
                            variant="outlined"
                            type={fieldType}
                            className={className}
+                           slotProps={{
+                                   "htmlInput": {
+                                       "min": 0
+                                   }
+                               }}
+
                            // slotProps={{
                            //     input: {
                            //         startAdornment: <InputAdornment
@@ -388,13 +394,13 @@ export default function SearchFilter({
             </Box>
 
             <ControllableTextField name={"match.search"} control={control} attributeData={primaryFilters.search}
-                                   className={"large-input-text-field"}/>
+                                   className={"large-input-text-field"} fieldType={"text"}/>
 
             <ControllableTextField name={"match.name"} control={control} attributeData={primaryFilters.name}
-                                   className={"large-input-text-field"}/>
+                                   className={"large-input-text-field"} fieldType={"text"}/>
 
             <ControllableTextField name={"match.material"} control={control} attributeData={primaryFilters.material}
-                                   className={"large-input-text-field"}/>
+                                   className={"large-input-text-field"} fieldType={"text"}/>
 
             {Object.entries(attributeGroups).map(([attribute_group_id, _]) => (
                 <AttributeGroupFilters key={attribute_group_id} register={register} control={control}
