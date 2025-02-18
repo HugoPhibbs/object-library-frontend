@@ -33,7 +33,7 @@ export function ObjectImage({object_id, width, height, imgClassName}: {
 }
 
 export function DownloadTableCell({object_id, handleDownload, label, dropdownOptions}: {
-    object_id: string,
+    object_id?: string,
     handleDownload: any,
     label: string,
     dropdownOptions?: string[]
@@ -61,7 +61,7 @@ export function DownloadTableCell({object_id, handleDownload, label, dropdownOpt
     </TableCell>
 }
 
-export function IfcDownloadTableCell({object_id}: { object_id: string }) {
+export function IfcDownloadTableCell({object_id}: { object_id?: string }) {
 
     async function handleDownload(object_id: string) {
         try {
