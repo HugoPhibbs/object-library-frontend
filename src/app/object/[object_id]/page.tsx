@@ -9,7 +9,7 @@ import api from "@/api";
 
 import _ from 'lodash';
 import {grey} from "@mui/material/colors";
-import {booleanToYesNo, formatUnits, UnitsToString} from "@/utils";
+import {booleanToYesNo, UnitsToString} from "@/utils";
 
 const mainDescriptionTableAttributes = [
     {label: "ID", object_path: "_id"},
