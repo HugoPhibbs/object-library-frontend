@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
     Box,
-    Button,
     Link as MuiLink,
     Table,
     TableBody,
@@ -11,11 +10,7 @@ import {
     TableRow,
     TableSortLabel
 } from '@mui/material';
-import {saveAs} from 'file-saver';
-import DownloadIcon from '@mui/icons-material/Download';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import api from "@/api";
-import Image from "next/image";
 import Link from "next/link";
 import {IfcDownloadTableCell, ObjectImage} from "@/components/common";
 import {FilteredLibraryObject, LibraryObject} from "@/utils";
