@@ -197,23 +197,7 @@ export class FormValues {
     }
 }
 
-function RangeSelector({control, formField, attributeData}: {
-    control: any
-    formField: FormField,
-    attributeData: AttributeMetadata
-}) {
-    return (
-        <Box className="range-selector">
-            <ControllableTextField name={`range.${encodeField(formField)}.min`} control={control}
-                                   attributeData={attributeData} labelOverride={"Min"}/>
-
-            <ControllableTextField name={`range.${encodeField(formField)}.max`} control={control}
-                                   attributeData={attributeData} labelOverride={"Max"}/>
-        </Box>
-    )
-}
-
-function ExactSelector({control, formField, attributeData, labelOverride="Value"}: {
+function ExactSelector({control, formField, attributeData, labelOverride = "Value"}: {
     control: any
     formField: FormField,
     attributeData: AttributeMetadata,
@@ -221,7 +205,8 @@ function ExactSelector({control, formField, attributeData, labelOverride="Value"
 }) {
     return (
         <Box className="exact-selector">
-            <ControllableTextField name={`exact.${encodeField(formField)}`} control={control} attributeData={attributeData} labelOverride={labelOverride}/>
+            <ControllableTextField name={`exact.${encodeField(formField)}`} control={control}
+                                   attributeData={attributeData} labelOverride={labelOverride}/>
         </Box>
     )
 }
@@ -236,7 +221,13 @@ function ExactAndRangeSelector({control, formField, attributeData}: {
     return (
         <>
             {useRangeOrExact ?
-                <RangeSelector control={control} formField={formField} attributeData={attributeData}/>
+                <Box className="range-selector">
+                    <ControllableTextField name={`range.${encodeField(formField)}.min`} control={control}
+                                           attributeData={attributeData} labelOverride={"Min"}/>
+
+                    <ControllableTextField name={`range.${encodeField(formField)}.max`} control={control}
+                                           attributeData={attributeData} labelOverride={"Max"}/>
+                </Box>
                 :
                 <ExactSelector control={control} formField={formField} attributeData={attributeData}/>}
 
@@ -258,7 +249,7 @@ function InputSelector({control, formField, attributeData}: {
             <FormControl component="fieldset">
                 <Box className="input-selector-form">
                     <FormLabel component="legend" className="input-and-range-label">
-                        {`${attributeData.units ? `${attributeData.label} (${attributeData.units})`: attributeData.label}:`}
+                        {`${attributeData.units ? `${attributeData.label} (${attributeData.units})` : attributeData.label}:`}
                     </FormLabel>
 
                     {attributeData.useRange ?
@@ -326,7 +317,7 @@ function ControllableTextField({
                                    attributeData,
                                    fieldType = "number",
                                    className = "small-input-text-field",
-                                   labelOverride
+                                   labelOverride,
                                }: {
     name: string,
     control: any,
@@ -340,6 +331,7 @@ function ControllableTextField({
             defaultValue=""
             name={name}
             control={control}
+            shouldUnregister={true}
             render={({field}) => (
                 <TextField {...field}
                            label={labelOverride ? labelOverride : attributeData.label}
@@ -347,17 +339,17 @@ function ControllableTextField({
                            type={fieldType}
                            className={className}
                            slotProps={{
-                                   "htmlInput": {
-                                       "min": 0
-                                   }
-                               }}
+                               "htmlInput": {
+                                   "min": 0
+                               }
+                           }}
 
-                           // slotProps={{
-                           //     input: {
-                           //         startAdornment: <InputAdornment
-                           //             position={"start"}>{attributeData.units}</InputAdornment>
-                           //     }
-                           // }}
+                    // slotProps={{
+                    //     input: {
+                    //         startAdornment: <InputAdornment
+                    //             position={"start"}>{attributeData.units}</InputAdornment>
+                    //     }
+                    // }}
                 />
             )}
         />
