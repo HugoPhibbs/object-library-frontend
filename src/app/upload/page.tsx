@@ -3,7 +3,7 @@ import TopNavBar from "@/components/TopNavBar";
 
 export default function UploadPage() {
     return (
-        <Box className={"content"}>
+        <Box className={"inner-content"}>
             {/*<Upload/>*/}
         </Box>
     );

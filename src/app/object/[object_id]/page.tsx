@@ -181,7 +181,7 @@ export default function ViewObject() {
 
 
     return (
-        <Box className={"content"}>
+        <Box className={"inner-content"}>
             <Grid container spacing={2} sx={{height: "60rem", width: "80rem"}}>
                 <Grid size={4}>
                     <ObjectImage object_id={object_id} width={500} height={500} imgClassName={"outline-box"}/>
