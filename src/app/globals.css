@@ -24,6 +24,10 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.MuiButton-root {
+    text-transform: none !important;
+}
+
 /* Main Styles */
 #title {
     font-size: 2rem;
@@ -76,7 +80,7 @@ body {
     background-color: white;
     padding: 3rem 5rem 3rem 5rem;
     gap: 1rem;
-    max-width: 100rem;
+    width: 100rem;
 }
 
 /* Filter and search */
@@ -243,4 +247,41 @@ body {
     justify-content: center;
     align-items: center;
     gap: 1rem;
+}
+
+/* Uploading an object */
+
+#pick-upload-button-box {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+}
+
+#main-upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+#pick-file-button {
+    height: 2.5rem;
+}
+
+#styled-file-name {
+    font-family: monospace;
+    background-color: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: black;
+}
+
+#upload-file-button {
+    height: 2.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
 }

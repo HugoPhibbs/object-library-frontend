@@ -32,7 +32,9 @@ export default function RootLayout({
         <section>
             <TopNavBar/>
             <Box className={"content"}>
+                <Box className={"inner-content"}>
                 {children}
+                </Box>
             </Box>
         </section>
         </body>
