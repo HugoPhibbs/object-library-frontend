@@ -1,6 +1,21 @@
-// components/TopNavBar.js
+"use client"
+
 import Link from 'next/link';
-import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import {AppBar, Toolbar, Typography, Button} from '@mui/material';
+import {usePathname} from "next/navigation";
+
+function ToolBarLinkButton({href, label}: { href: string, label: string }) {
+    const pathname = usePathname();
+    const isActive = pathname === href;
+
+    return (
+        <Button sx={{ border: isActive ? "2.5px solid #c4c4c4" : null }} className={"nav-button"}>
+            <Link href={href} passHref>
+                {label}
+            </Link>
+        </Button>
+    )
+}
 
 const TopNavBar = () => {
     return (
@@ -11,16 +26,8 @@ const TopNavBar = () => {
             </Typography>
 
             <Toolbar id={"nav-toolbar"}>
-                <Button color="inherit">
-                    <Link href="/" passHref>
-                        Home
-                    </Link>
-                </Button>
-                <Button color="inherit">
-                    <Link href="/upload" passHref>
-                        Upload
-                    </Link>
-                </Button>
+                <ToolBarLinkButton href={"/"} label={"Home"}/>
+                <ToolBarLinkButton href={"/upload"} label={"Upload"}/>
             </Toolbar>
         </AppBar>
     );

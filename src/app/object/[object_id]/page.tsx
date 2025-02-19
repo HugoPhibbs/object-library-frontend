@@ -181,32 +181,26 @@ export default function ViewObject() {
 
 
     return (
-        <Box p={3}>
-            <Box className={"title-box"}>
-                <h1 className={"title"}>Object Library</h1>
-            </Box>
-
-            <Box className={"content"}>
-                <Grid container spacing={2} sx={{height: "60rem", width: "80rem"}}>
-                    <Grid size={4}>
-                        <ObjectImage object_id={object_id} width={500} height={500} imgClassName={"outline-box"}/>
-                    </Grid>
-
-                    <Grid size={8} className={"main-description-box outline-box"}>
-                        <h2 className={"sub-title"}>{currObject?.name}</h2>
-
-                        <Box sx={{display: "flex", flexDirection: "row", gap: "1rem", justifyContent: "space-around"}}>
-                            <MainAttributeTable currObject={currObject}/>
-                            <ObjectFilesTable currObject={currObject}/>
-                        </Box>
-
-                    </Grid>
-
-                    <Grid size={12} className={"outline-box"}>
-                        <DetailedAttributeTable currObject={currObject}/>
-                    </Grid>
+        <Box className={"content"}>
+            <Grid container spacing={2} sx={{height: "60rem", width: "80rem"}}>
+                <Grid size={4}>
+                    <ObjectImage object_id={object_id} width={500} height={500} imgClassName={"outline-box"}/>
                 </Grid>
-            </Box>
+
+                <Grid size={8} className={"main-description-box outline-box"}>
+                    <h2 className={"sub-title"}>{currObject?.name}</h2>
+
+                    <Box sx={{display: "flex", flexDirection: "row", gap: "1rem", justifyContent: "space-around"}}>
+                        <MainAttributeTable currObject={currObject}/>
+                        <ObjectFilesTable currObject={currObject}/>
+                    </Box>
+
+                </Grid>
+
+                <Grid size={12} className={"outline-box"}>
+                    <DetailedAttributeTable currObject={currObject}/>
+                </Grid>
+            </Grid>
         </Box>
     );
 }
