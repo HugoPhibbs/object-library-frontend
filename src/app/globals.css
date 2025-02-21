@@ -22,10 +22,30 @@ body {
     color: var(--foreground);
     background: var(--background);
     font-family: Arial, Helvetica, sans-serif;
+    height: auto;
+    min-height: 100%;
+}
+
+#main-section{
+    height: 100%
+}
+
+html {
+    height: 100%;
+}
+
+html, body {
+    /*height: 100%;*/
+    margin: 0;
 }
 
 .MuiButton-root {
     text-transform: none !important;
+}
+
+h2 {
+    font-size: 1.6rem;
+    font-weight: bold;
 }
 
 /* Main Styles */
@@ -52,7 +72,7 @@ body {
 #nav-toolbar {
     background-color: #f8f8f8;
     border-bottom: 1px solid #c4c4c4;
-    color: #0a0a0a ;
+    color: #0a0a0a;
     display: flex;
     padding: 0.5rem;
     flex-direction: row;
@@ -61,26 +81,27 @@ body {
     gap: 1rem
 }
 
-.content {
+#content {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: start;
-    /*height: auto;*/
+    height: 100%;
     margin-top: 9rem;
     padding-top: 0;
     background-color: #f8f8f8;
 }
 
-.inner-content {
+#inner-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     background-color: white;
     padding: 3rem 5rem 3rem 5rem;
     gap: 1rem;
     width: 100rem;
+    height: 100%
 }
 
 /* Filter and search */
@@ -180,10 +201,6 @@ body {
     color: black !important;
 }
 
-.search-filter-title {
-    font-size: 2rem;
-    font-weight: bold;
-}
 
 .outline-box {
     border: 1px solid #c4c4c4;
@@ -217,6 +234,19 @@ body {
     color: black !important;
     text-transform: none !important;
     font-size: large !important;
+}
+
+#sort-by-dropdown-control {
+    width: 11rem;
+}
+
+#results-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    /*padding: 1rem;*/
+    /*border: 1px solid #c4c4c4;*/
+    /*border-radius: 0.3rem;*/
 }
 
 /* Viewing an Object */
@@ -253,7 +283,7 @@ body {
 
 #pick-upload-button-box {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 1rem;
     align-items: center;
 }
@@ -284,4 +314,11 @@ body {
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
+}
+
+#upload-info-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
 }
