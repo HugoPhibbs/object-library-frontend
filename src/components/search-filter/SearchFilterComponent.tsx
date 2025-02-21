@@ -376,9 +376,10 @@ export default function SearchFilter({
     }
 
     return (
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} className={"search-filter"}>
-            <Box className={"search-filter-header"}>
-                <h2 className={"search-filter-title"}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} id={"search-filter"}>
+
+            <Box id={"search-filter-header"}>
+                <h2 id={"search-filter-title"}>
                     Search and Filter
                 </h2>
 
