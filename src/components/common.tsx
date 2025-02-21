@@ -32,29 +32,30 @@ export function ObjectImage({object_id, width, height, imgClassName}: {
     return <Image src={imageUrl} alt="Object" width={width} height={height} className={imgClassName}/>;
 }
 
-export function DownloadTableCell({object_id, handleDownload, label, dropdownOptions}: {
+export function DownloadTableCell({object_id, handleDownload, label, dropdownOptions, StartIcon}: {
     object_id?: string,
     handleDownload: any,
     label: string,
-    dropdownOptions?: string[]
+    dropdownOptions?: string[],
+    StartIcon?: React.ElementType
 }) {
 
     const [dropdownOption, setDropdownOption] = useState<string[]>([]);
 
-    const handleDropdownChange = (event:any) => {
+    const handleDropdownChange = (event: any) => {
         setDropdownOption(event.target.value as string[]);
     }
 
     return <TableCell className={"download-table-cell"}>
         <Box>
             {dropdownOptions ?
-                (<Select value={dropdownOption} onChange={handleDropdownChange} label={"Choose Option"} >
+                (<Select value={dropdownOption} onChange={handleDropdownChange} label={"Choose Option"}>
                     {dropdownOptions.map((option, index) => (<MenuItem key={index}>{option}</MenuItem>))}
                 </Select>)
                 : null
             }
 
-            <Button variant="contained" size="small" startIcon={<DownloadIcon/>}
+            <Button variant="contained" size="small" startIcon={StartIcon ? <StartIcon/> : <DownloadIcon/>}
                     onClick={() => handleDownload(object_id)}>{label}
             </Button>
         </Box>
@@ -73,5 +74,12 @@ export function IfcDownloadTableCell({object_id}: { object_id?: string }) {
         }
     }
 
-    return <DownloadTableCell object_id={object_id} handleDownload={handleDownload} label={"IFC"}/>
+    return <DownloadTableCell object_id={object_id} handleDownload={handleDownload} label={"IFC"} StartIcon={IfcIcon}/>
+}
+
+export function IfcIcon({width = 36, height = 36}: { width?: number, height?: number }) {
+    return <Image src="/ifc_logo.svg"
+                  width={width}
+                  height={height}
+                  alt="IFC Logo"/>
 }

@@ -1,17 +1,15 @@
 "use client"
 
-import {Box, Button, FormControlLabel, TextField, Typography} from "@mui/material";
+import {Box, Button, TextField, Typography} from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import TopNavBar from "@/components/TopNavBar";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import {styled} from '@mui/material/styles';
 import {useState} from "react";
 import api from "@/api";
-import {CheckCircle, FileOpen} from "@mui/icons-material";
 import {green} from "@mui/material/colors";
-import {throwWithStaticGenerationBailoutErrorWithDynamicError} from "next/dist/server/request/utils";
-
+import {IfcIcon} from "@/components/common";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -25,22 +23,28 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-function PickFileButton({onChange}: { onChange?: (event: any) => void}) {
+
+function PickFileButton({onChange, label, StartIcon, accept_types}: {
+    onChange?: (event: any) => void,
+    label: string,
+    StartIcon: React.ElementType,
+    accept_types: string[]
+}) {
     return (
         <Button
-            id={"pick-file-button"}
+            className={"pick-file-button"}
             component="label"
             role={undefined}
             variant="contained"
             tabIndex={-1}
-            startIcon={<FileOpen/>}
+            startIcon={<StartIcon/>}
         >
-            Pick IFC File
+            {label}
             <VisuallyHiddenInput
                 type="file"
                 onChange={onChange}
                 multiple
-                accept={".ifc"}
+                accept={accept_types.join(",")}
             />
         </Button>
     );
@@ -163,7 +167,14 @@ export default function UploadPage() {
                 </Box>
 
                 <Box id={"pick-upload-button-box"}>
-                    <PickFileButton onChange={handleFileChange}/>
+                    <Box id={"pick-files-box"} >
+                        <PickFileButton onChange={handleFileChange} StartIcon={IfcIcon} label={"Pick IFC File"}
+                                        accept_types={[".ifc"]}/>
+
+                        <PickFileButton onChange={() => (console.log("photo added"))} StartIcon={InsertPhotoIcon} label={"Pick Photo File"}
+                                        accept_types={[".png"]}/>
+                    </Box>
+
                     <TextField onChange={customIdChange} label={"Enter Custom ID"}></TextField>
 
                     <Box>

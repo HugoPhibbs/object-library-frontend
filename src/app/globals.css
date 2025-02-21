@@ -296,8 +296,15 @@ h2 {
     padding: 1rem;
 }
 
-#pick-file-button {
-    height: 2.5rem;
+#pick-files-box {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+}
+
+.pick-file-button {
+    height: 3rem;
 }
 
 #styled-file-name {
