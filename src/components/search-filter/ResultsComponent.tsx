@@ -53,28 +53,6 @@ function ViewObjectLink({object_id}: { object_id: string }) {
     </MuiLink>
 }
 
-function SortableTableHeadCell({column, orderBy, direction, onClick}: {
-    column: ColumnData,
-    orderBy: string,
-    direction: "asc" | "desc",
-    onClick: () => void
-}) {
-    return (
-        <TableCell className={"table-column-header-cell"}>
-            {column.canSort ? (
-                <TableSortLabel
-                    active={orderBy === "id"}
-                    direction={direction}
-                    onClick={onClick}>
-                    {column.label}
-                </TableSortLabel>
-            ) : (
-                <Box>{column.label}</Box>
-            )}
-        </TableCell>
-    );
-}
-
 function SortByDropdown({orderBy, setOrderBy}: {
     orderBy: string,
     setOrderBy: (value: string) => void

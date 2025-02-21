@@ -356,9 +356,7 @@ function ControllableTextField({
     );
 }
 
-export default function SearchFilter({
-                                         handleFilterSubmitToParent
-                                     }: {
+export default function SearchFilter({handleFilterSubmitToParent}: {
     handleFilterSubmitToParent: (formValues: FormValues) => void
 }) {
     const {register, handleSubmit, reset, watch, control} = useForm<FormValues>({
