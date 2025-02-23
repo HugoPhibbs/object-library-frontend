@@ -162,6 +162,8 @@ export default function UploadPage() {
                         Upload an IFC file to add it to the object library. Optionally, you can provide a custom ID to
                         associate with the file.
 
+                        You can also add an optional object photo file.
+
                         If an object with the same ID already exists, it will be updated with the new file.
                     </p>
                 </Box>
@@ -187,8 +189,6 @@ export default function UploadPage() {
                         />
                     </Box>
                 </Box>
-
-                {/*{file ? <p><StyledFileName fileName={fileName}/> added</p> : null}*/}
             </Box>
         </>
     );
