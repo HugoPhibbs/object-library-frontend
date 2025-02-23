@@ -1,7 +1,17 @@
 "use client"
 
 import {useParams} from "next/navigation";
-import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
+import {
+    Accordion, AccordionDetails, AccordionSummary,
+    Box, Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Typography
+} from "@mui/material";
 import Grid from "@mui/material/Grid2"
 import React, {Fragment, useEffect} from "react";
 import {DownloadTableCell, IfcDownloadTableCell, ObjectImage} from "@/components/common"
@@ -18,6 +28,12 @@ const mainDescriptionTableAttributes = [
     {label: "Material", object_path: "material"},
     {label: "Load Bearing", object_path: "property_sets.Pset_BeamCommon.LoadBearing.value", isBoolean: true}
 ]
+
+type DetailedAttribute = {
+    label: string,
+    object_path: string,
+    units: string | null
+}
 
 const detailedDescriptionTableAttributes = {
     "Structural": [
@@ -60,13 +76,13 @@ const detailedDescriptionTableAttributes = {
             units: UnitsToString.AREA
         },
     ]
-};
+} as { [key: string]: DetailedAttribute[] }
 
 
 function TableWithTitle({title, children}: { title: string, children: React.ReactNode }) {
     return (
         <Box className="table-with-title">
-            <h2>{title}</h2>
+            <h3>{title}</h3>
             <TableContainer sx={{width: "auto"}}>
                 <Table className={"data-table"}>
                     {children}
@@ -105,35 +121,46 @@ function MainAttributeTable({currObject}: { currObject: LibraryObject | null }) 
     );
 }
 
-function DetailedAttributeTable({currObject}: { currObject: LibraryObject | null }) {
+function CollapsableGroupedAttributesTable({currObject, attributeGroupName, attributes}: {
+    currObject: LibraryObject | null,
+    attributeGroupName: string,
+    attributes: DetailedAttribute[]
+}) {
     return (
-        <TableWithTitle title="Further Attributes">
-            <TableBody>
-                {Object.entries(detailedDescriptionTableAttributes).map(([groupName, attributes], groupIndex) => (
-                    <Fragment key={groupIndex}>
-                        <TableRow>
-                            <TableCell colSpan={2} style={{backgroundColor: grey[200]}}>
-                                {groupName}
-                            </TableCell>
-                        </TableRow>
-                        {attributes.map((attribute, index) => {
-                            const value = _.get(currObject, attribute.object_path);
-                            return (
-                                <TableRow
-                                    key={Object.keys(detailedDescriptionTableAttributes).length * groupIndex + index}>
-                                    <TableCell>{attribute.label}</TableCell>
-                                    <TableCell>
-                                        {value} <Typography variant={"inherit"} component="span"
-                                                            fontWeight="bold">{attribute.units}</Typography>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
-                    </Fragment>
-                ))}
-            </TableBody>
-        </TableWithTitle>
-    );
+        <Accordion>
+            <AccordionSummary>
+                <Typography variant={"h6"}>{attributeGroupName}</Typography>
+            </AccordionSummary>
+
+            <AccordionDetails>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead className={"table-column-header-cell"}>
+                            <TableRow>
+                                <TableCell>Attribute</TableCell>
+                                <TableCell>Value</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {attributes.map((attribute, index) => {
+                                const value = _.get(currObject, attribute.object_path);
+                                return (
+                                    <TableRow
+                                        key={index}>
+                                        <TableCell>{attribute.label}</TableCell>
+                                        <TableCell>
+                                            {value} <Typography variant={"inherit"} component="span"
+                                                                fontWeight="bold">{attribute.units}</Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </AccordionDetails>
+        </Accordion>
+    )
 }
 
 function ObjectFilesTable({currObject}: { currObject: LibraryObject | null }) {
@@ -181,13 +208,13 @@ export default function ViewObject() {
 
 
     return (
-        <>
-            <Grid container spacing={2} sx={{height: "60rem", width: "80rem"}}>
-                <Grid size={4}>
-                    <ObjectImage object_id={object_id} width={500} height={500} imgClassName={"outline-box"}/>
-                </Grid>
+        <Box id={"view-object-main-box"}>
 
-                <Grid size={8} className={"main-description-box outline-box"}>
+            <Box id={"view-object-secondary-box"}>
+                <ObjectImage object_id={object_id} width={500} height={500}
+                             imgID={"large-view-object-img"}/>
+
+                <Box id={"main-description-box"}>
                     <h2 className={"sub-title"}>{currObject?.name}</h2>
 
                     <Box sx={{display: "flex", flexDirection: "row", gap: "1rem", justifyContent: "space-around"}}>
@@ -195,12 +222,22 @@ export default function ViewObject() {
                         <ObjectFilesTable currObject={currObject}/>
                     </Box>
 
-                </Grid>
+                </Box>
+            </Box>
 
-                <Grid size={12} className={"outline-box"}>
-                    <DetailedAttributeTable currObject={currObject}/>
-                </Grid>
-            </Grid>
-        </>
+            <Box sx={{display: "flex", flexDirection: "column", gap: "1rem"}}>
+                <Box>
+                    <h3 id={"detailed-attributes-title"}>Detailed Attributes</h3>
+                </Box>
+
+                <Box>
+                    {Object.entries(detailedDescriptionTableAttributes).map(([groupName, attributes], groupIndex) => (
+                        <CollapsableGroupedAttributesTable key={groupIndex} currObject={currObject}
+                                                           attributeGroupName={groupName} attributes={attributes}/>
+                    ))}
+                </Box>
+            </Box>
+
+        </Box>
     );
 }
