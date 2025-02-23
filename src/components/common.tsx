@@ -7,11 +7,12 @@ import {saveAs} from "file-saver";
 import {Box, Button, MenuItem, Select, TableCell} from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 
-export function ObjectImage({object_id, width, height, imgClassName}: {
+export function ObjectImage({object_id, width, height, imgClassName, imgID}: {
     object_id: string,
     width: number,
     height: number,
     imgClassName?: string
+    imgID?: string
 }) {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -29,7 +30,7 @@ export function ObjectImage({object_id, width, height, imgClassName}: {
         return <span>Loading...</span>;
     }
 
-    return <Image src={imageUrl} alt="Object" width={width} height={height} className={imgClassName}/>;
+    return <Image src={imageUrl} alt="Object" width={width} height={height} className={imgClassName} id={imgID}/>;
 }
 
 export function DownloadTableCell({object_id, handleDownload, label, dropdownOptions, StartIcon}: {
