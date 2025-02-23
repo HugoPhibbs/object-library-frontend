@@ -21,16 +21,13 @@ import _, {orderBy} from "lodash";
 type ColumnData = {
     id: string;
     label: string;
-    canSort: boolean;
+    canSort?: boolean;
 }
 
 const columns: ColumnData[] = [
-    {id: 'id', label: 'ID', canSort: false},
-    {id: 'name', label: 'Name', canSort: false},
-    // {id: "ifc_type", label: "IFC Type", canSort: false},
-    {id: "material", label: "Material", canSort: false},
-    // {id: "load_bearing", label: "Load Bearing", canSort: true},
-    // {id: "form_factor", label: "Form Factor", canSort: true},
+    // {id: 'id', label: 'ID', canSort: false},
+    {id: 'name', label: 'Name', canSort: true},
+    {id: "material", label: "Material", canSort: true},
     {id: "photo", label: "Photo", canSort: false},
     {id: "download", label: "Download", canSort: false},
 ];
@@ -38,8 +35,7 @@ const columns: ColumnData[] = [
 function Row({object}: { object: LibraryObject }) {
     return (
         <TableRow hover>
-            <TableCell><ViewObjectLink object_id={object.id}/></TableCell>
-            <TableCell>{object.name}</TableCell>
+            <TableCell><ViewObjectLink object_id={object.id} label = {object.name}/></TableCell>
             <TableCell>{object.material}</TableCell>
             <TableCell><ObjectImage object_id={object.id} width={200} height={200}/></TableCell>
             <IfcDownloadTableCell object_id={object.id}/>
@@ -47,9 +43,9 @@ function Row({object}: { object: LibraryObject }) {
     );
 }
 
-function ViewObjectLink({object_id}: { object_id: string }) {
-    return <MuiLink component={Link} href={`/object/${object_id}`} underline="always">
-        {object_id} <OpenInNewIcon fontSize="small" sx={{ml: 0.5}}/>
+function ViewObjectLink({object_id, label}: { object_id: string, label?:string }) {
+    return <MuiLink className={"view-object-link"} component={Link} href={`/object/${object_id}`} underline="always">
+        {label ? label : object_id} <OpenInNewIcon fontSize="small" sx={{ml: 0.5}} color={"primary"}/>
     </MuiLink>
 }
 
@@ -62,14 +58,18 @@ function SortByDropdown({orderBy, setOrderBy}: {
         setOrderBy(e.target.value)
     }
 
-    const dropdownOptions = [
-        {value: "score-desc", label: "Relevancy (desc)"},
-        {value: "score-asc", label: "Relevancy (asc)"},
-        {value: "name-desc", label: "Name (desc)"},
-        {value: "name-asc", label: "Name (asc)"},
-        {value: "material-desc", label: "Material (desc)"},
-        {value: "material-asc", label: "Material (asc)"},
-    ]
+    const sortableColumns = columns.filter(column => column.canSort);
+    sortableColumns.splice(0, 0, {id: "score", label: "Relevancy"}) // Add to start
+
+    const dropdownOptions = []
+
+    for (const col of sortableColumns) {
+        const thisDropDownOptions = [
+            {value: `${col.id}-desc`, label: `${col.label} (desc)`},
+            {value: `${col.id}-asc`, label: `${col.label} (asc)`},
+        ]
+        dropdownOptions.push(...thisDropDownOptions)
+    }
 
     return (
         <FormControl id="sort-by-dropdown-control">
