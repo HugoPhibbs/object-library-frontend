@@ -29,15 +29,12 @@ export default function RootLayout({children}: Readonly<{
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 
         <ThemeRegistry>
-            <section id={"main-section"}>
-
-                <TopNavBar/>
-                <Box id={"content"}>
-                    <Box id={"inner-content"}>
-                        {children}
-                    </Box>
+            <TopNavBar/>
+            <Box id={"content"}>
+                <Box id={"inner-content"}>
+                    {children}
                 </Box>
-            </section>
+            </Box>
         </ThemeRegistry>
 
         </body>
