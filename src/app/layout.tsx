@@ -6,6 +6,7 @@ import {Box} from "@mui/material";
 
 import ThemeRegistry from "@/app/theme-registry";
 
+
 const geistSans = Geist({
     variable: "--font-geist-sans",
     subsets: ["latin"],
@@ -26,7 +27,7 @@ export default function RootLayout({children}: Readonly<{
 }>) {
     return (
         <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body id="main-body" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 
         <ThemeRegistry>
             <TopNavBar/>
