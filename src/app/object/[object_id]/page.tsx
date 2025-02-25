@@ -12,13 +12,11 @@ import {
     TableRow,
     Typography
 } from "@mui/material";
-import Grid from "@mui/material/Grid2"
-import React, {Fragment, useEffect} from "react";
+import React, {useEffect} from "react";
 import {DownloadTableCell, IfcDownloadTableCell, ObjectImage} from "@/components/common"
 import api from "@/api";
 
 import _ from 'lodash';
-import {grey} from "@mui/material/colors";
 import {booleanToYesNo, LibraryObject, UnitsToString} from "@/utils";
 
 const mainDescriptionTableAttributes = [
