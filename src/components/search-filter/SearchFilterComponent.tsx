@@ -335,7 +335,6 @@ function ControllableTextField({
             render={({field}) => (
                 <TextField {...field}
                            label={labelOverride ? labelOverride : attributeData.label}
-                           variant="outlined"
                            type={fieldType}
                            className={className}
                            slotProps={{
@@ -343,13 +342,6 @@ function ControllableTextField({
                                    "min": 0
                                }
                            }}
-
-                    // slotProps={{
-                    //     input: {
-                    //         startAdornment: <InputAdornment
-                    //             position={"start"}>{attributeData.units}</InputAdornment>
-                    //     }
-                    // }}
                 />
             )}
         />
