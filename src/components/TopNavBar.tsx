@@ -34,6 +34,10 @@ const TopNavBar = () => {
                 <Divider orientation={"vertical"} variant={"middle"} flexItem className={"nav-divider"} />
 
                 <ToolBarLinkButton href={"/upload"} label={"Upload"}/>
+
+                <Divider orientation={"vertical"} variant={"middle"} flexItem className={"nav-divider"} />
+
+                <ToolBarLinkButton href={"/connections"} label={"Connections"}/>
             </Toolbar>
         </AppBar>
     );
