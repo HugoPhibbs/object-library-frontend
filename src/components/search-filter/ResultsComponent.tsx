@@ -90,7 +90,7 @@ export default function Results({data}: { data: FilteredLibraryObject[] }) {
     useEffect(() => {
         const [attributeToSort, sortOrder] = orderBy.split("-") as [string, "asc" | "desc"];
 
-        const path = attributeToSort == "score" ? "score" : "object." + attributeToSort;
+        const path = attributeToSort == "score" ? "score" : "data   ." + attributeToSort;
 
         setSortedData(_.orderBy(data, [path], [sortOrder]));
     }, [data, orderBy]);
@@ -114,7 +114,7 @@ export default function Results({data}: { data: FilteredLibraryObject[] }) {
                     </TableHead>
                     <TableBody>
                         {sortedData.map((object: FilteredLibraryObject) => (
-                            <Row key={object.object.id} object={object.object}/>
+                            <Row key={object.data.id} object={object.data}/>
                         ))}
                     </TableBody>
                 </Table>

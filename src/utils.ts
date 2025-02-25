@@ -16,7 +16,7 @@ export enum UnitsToString {
 
 export type FilteredLibraryObject = {
     score: number;
-    object: LibraryObject;
+    data: LibraryObject;
 }
 
 export type LibraryObject = {
