@@ -8,17 +8,43 @@ import {
     MenuItem,
     Paper,
     Select,
-    TableContainer,
-    TextField,
     Table,
     TableBody,
+    TableCell,
+    TableContainer,
     TableRow,
-    TableCell
+    TextField,
+    Typography,
 } from "@mui/material";
-import {useForm} from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import api from "@/api";
-import React from "react";
+import React, {Fragment, useEffect} from "react";
+import {FilteredLibraryResult, LibraryConnectionData} from "@/utils";
 
+const connectionAttributesMetaData: Record<string, Record<string, string | boolean>> = {
+    connection_type: {label: "Connection Type"},
+    id: {label: "ID", exclude: true},
+    mass: {label: "Mass"},
+    moment: {label: "Moment"},
+    shear: {label: "Shear"},
+    section: {label: "Section"},
+    diameter: {label: "Diameter"},
+    total_bottom: {label: "Total Bottom"},
+    total_top: {label: "Total Top"},
+    length: {label: "Length"},
+    thickness: {label: "Thickness"},
+    width: {label: "Width"},
+    flange: {label: "Flange"},
+    web: {label: "Web"},
+    moment_bottom: {label: "Moment Bottom"},
+    moment_top: {label: "Moment Top"},
+    shear_capacity: {label: "Shear"},
+    design_capacity: {label: "Design Capacity"},
+    fillet_welds: {label: "Fillet Welds"},
+    bolts: {label: "Bolts"},
+    cleat: {label: "Cleat"},
+    connection: {label: "Connection"},
+};
 
 const flattenObject = (obj: Record<string, any>, prefix = ""): Record<string, any> => {
     return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -33,31 +59,124 @@ const flattenObject = (obj: Record<string, any>, prefix = ""): Record<string, an
     }, {});
 };
 
-
-const ConnectionTable = ({connectionData}: { connectionData: any }) => {
+function ConnectionTable({connectionData}: { connectionData: FilteredLibraryResult<LibraryConnectionData> }) {
     if (!connectionData?.data) return null;
-    const flattenedData = flattenObject(connectionData.data);
+
+    const renderRow = (key: string, value: any, level = 0) => {
+        if (typeof value === "object" && value !== null) {
+            return (
+                <Fragment key={key}>
+                    <TableRow sx={{backgroundColor: level === 0 ? "#ddd" : "#eee"}}>
+                        <TableCell colSpan={2} sx={{fontWeight: "bold"}}>
+                            {connectionAttributesMetaData[key].label}
+                        </TableCell>
+                    </TableRow>
+                    {Object.entries(value).map(([subKey, subValue]): any => renderRow(subKey, subValue, level + 1))}
+                </Fragment>
+            );
+        }
+        return (
+            !connectionAttributesMetaData[key].exclude ? (
+                <TableRow key={key}>
+                    <TableCell sx={{pl: level * 2 + 1}}>{connectionAttributesMetaData[key].label}</TableCell>
+                    <TableCell>{value}</TableCell>
+                </TableRow>
+            ) : null
+        );
+    };
 
     return (
-        <TableContainer component={Paper}>
-            <Table>
-                <TableBody>
-                    {Object.entries(flattenedData).map(([key, value]) => (
-                        <TableRow key={key}>
-                            <TableCell>{key}</TableCell>
-                            <TableCell>{value}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+        <Box>
+            <Typography variant="h3">Connection Data</Typography>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableBody>
+                        {Object.entries(connectionData.data).map(([key, value]) => renderRow(key, value))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Box>
     );
-};
+}
 
+function ConnectionsSearchForm({onSubmit, register, control, sectionTypes,}: {
+    onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>,
+    register: any,
+    sectionTypes: string[],
+    control: any
+}) {
+
+    return (
+        <Box className={"outline-box"} id={"connections-form-box"} component={"form"} onSubmit={onSubmit}>
+            <Box>
+                <Typography variant={"h2"}>Enter Details</Typography>
+            </Box>
+
+            <FormControl>
+                <InputLabel id="connection-type-select-label">Connection Type</InputLabel>
+
+                <Controller
+                    name="connectionType"
+                    control={control}
+                    render={({field}) => (
+                        <Select labelId="connection-type-select-label" {...field}
+                                id="connection-type-select" type="text" label="Connection Type" required>
+                            <MenuItem value="mep-8">MEP-8</MenuItem>
+                        </Select>
+                    )}
+                />
+            </FormControl>
+
+            <FormControl>
+                <InputLabel id={"member-type-select-label"}>Member Type</InputLabel>
+                <Controller control={control} name={"memberSection"} render={({field}) => (
+                    <Select labelId={"member-type-select-label"} {...field}
+                            id={"member-type-select"} type="text" label={"Member Type"} required>
+                        {sectionTypes.map((sectionType, index) => (
+                            <MenuItem key={index} value={sectionType}>{sectionType}</MenuItem>
+                        ))}
+                    </Select>
+                )}/>
+            </FormControl>
+
+            <TextField label="Member Mass/Length (kg/m)" {...register("memberMass")} type="number"
+                       slotProps={{htmlInput: {step: "0.1", min: 0}}} required/>
+
+            <FormControl>
+                <InputLabel id={"moment-shear-ratio-label"}>Moment/Shear Ratio (%)</InputLabel>
+
+                <Controller
+                    name="momentShearRatio"
+                    control={control}
+                    render={({field}) => (
+                        <Select labelId={"moment-shear-ratio-label"} {...field}
+                                id={"moment-shear-ratio"} type="text" label={"Moment/Shear Ratio (%)"} required>
+                            <MenuItem value={"50/25"}>50/25</MenuItem>
+                            <MenuItem value={"70/35"}>70/35</MenuItem>
+                            <MenuItem value={"100/50"}>100/50</MenuItem>
+                        </Select>
+                    )}
+                />
+            </FormControl>
+
+            <Button type={"submit"} variant={"contained"}>Find Connection</Button>
+        </Box>
+    );
+}
 
 export default function Connections() {
-    const {register, handleSubmit} = useForm();
-    const [filteredConnections, setFilteredConnections] = React.useState([]);
+    const {register, handleSubmit, control} = useForm({
+        defaultValues: {memberSection: "", connectionType: "", momentShearRatio: ""}
+    });
+    const [filteredConnections, setFilteredConnections] = React.useState<FilteredLibraryResult<LibraryConnectionData>[]>([]);
+
+    const [sectionTypes, setSectionTypes] = React.useState([]);
+
+    useEffect(() => {
+        api.get("/connection/section-type")
+            .then((response) => setSectionTypes(response.data.sort()))
+            .catch((error) => console.error("Failed to get section types: ", error));
+    }, []);
 
 
     const onSubmit = (data: any) => {
@@ -84,50 +203,21 @@ export default function Connections() {
     return (
         <Box id={"connections-main-box"}>
 
-            <h2>
-                Find a connection data tool
-            </h2>
+            <Box id={"connections-intro-box"}>
+                <Typography variant={"h1"}>Find Connection Data</Typography>
 
-            <p>
-                Please enter connection type, member type, member mass, and moment/shear ratio
-            </p>
+                <p>
+                    Please enter connection type, member type, member mass, and moment/shear ratio
+                </p>
+            </Box>
+
 
             <Box id={"connections-form-and-results-box"}>
-                <Box id={"connections-form-box"} component={"form"} onSubmit={handleSubmit(onSubmit)}>
-                    <FormControl>
-                        <InputLabel id="connection-type-select-label">Connection Type</InputLabel>
-                        <Select labelId={"connection-type-select-label"} {...register("connectionType")}
-                                id="connection-type-select" type="text" label={"Connection Type"} required>
-                            <MenuItem value={"mep-8"}>MEP-8</MenuItem>
-                        </Select>
-                    </FormControl>
-
-                    {/* TextField does not need FormControl or InputLabel */}
-                    <TextField label="Member Type" {...register("memberSection")} type="text" required/>
-
-                    {/* Fix: Use correct name for member mass */}
-                    <TextField label="Member Mass/Length (kg/m)" {...register("memberMass")} type="number"
-                               slotProps={{htmlInput: {step: "0.1"}}} required/>
-
-                    <FormControl>
-                        <InputLabel id={"moment-shear-ratio-label"}>Moment/Shear Ratio (%)</InputLabel>
-                        <Select labelId={"moment-shear-ratio-label"} autoWidth {...register("momentShearRatio")}
-                                id={"moment-shear-ratio"} type="text" label={"Moment/Shear Ratio (%)"} required>
-                            <MenuItem value={"50/25"}>50/25</MenuItem>
-                            <MenuItem value={"60/40"}>70/35</MenuItem>
-                            <MenuItem value={"70/30"}>100/50</MenuItem>
-                        </Select>
-                    </FormControl>
-
-                    <Button type={"submit"} variant={"contained"}>Find Connection</Button>
-                </Box>
+                <ConnectionsSearchForm onSubmit={handleSubmit(onSubmit)} register={register} sectionTypes={sectionTypes}
+                                       control={control}/>
 
                 <Box id={"connections-results-box"}>
-                    {filteredConnections ?
-                        (<><p> Found Connection</p><Box>
-                            {filteredConnections?.[0] && <ConnectionTable connectionData={filteredConnections[0]}/>}
-                        </Box></>) :
-                        null}
+                    {filteredConnections?.[0] && <ConnectionTable connectionData={filteredConnections[0]}/>}
                 </Box>
             </Box>
         </Box>
