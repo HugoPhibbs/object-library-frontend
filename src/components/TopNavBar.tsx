@@ -21,7 +21,7 @@ function ToolBarLinkButton({href, label}: { href: string, label: string }) {
 
 const TopNavBar = () => {
     return (
-        <AppBar id={"main-app-bar"} position="fixed">
+        <AppBar id={"main-app-bar"}>
 
             <Typography variant={"h1"} gutterBottom id={"title"} align={"center"}>
                 <Image src="/ngakopa_icon.png" alt={"icon"} width={160} height={30}></Image>
