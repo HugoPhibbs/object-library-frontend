@@ -5,6 +5,7 @@ import TopNavBar from "@/components/TopNavBar";
 import {Box} from "@mui/material";
 
 import ThemeRegistry from "@/app/theme-registry";
+import CssBaseline from "@mui/material/CssBaseline";
 
 
 const geistSans = Geist({
@@ -30,6 +31,7 @@ export default function RootLayout({children}: Readonly<{
         <body id="main-body" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 
         <ThemeRegistry>
+            <CssBaseline/>
             <TopNavBar/>
             <Box id={"content"}>
                 <Box id={"inner-content"}>
