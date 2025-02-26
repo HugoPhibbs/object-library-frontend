@@ -30,6 +30,8 @@
     display: flex;
     flex-direction: column;
     /*gap: 1rem;*/
+    overflow: hidden;
+    /*width: 100vw;*/
 }
 
 #main-section {
@@ -38,6 +40,7 @@
 
 html {
     height: 100%;
+    overflow-y: scroll !important;
 }
 
 html, body {
@@ -49,14 +52,19 @@ html, body {
     text-transform: none !important;
 }
 
+h1 {
+    font-size: 2rem !important;
+    font-weight: bold  !important;
+}
+
 h2 {
-    font-size: 1.6rem;
-    font-weight: bold;
+    font-size: 1.6rem !important;
+    font-weight: bold !important;
 }
 
 h3 {
-    font-size: 1.4rem;
-    font-weight: bold;
+    font-size: 1.4rem !important;
+    font-weight: bold !important;
 }
 
 /* Main Styles */
@@ -104,6 +112,7 @@ h3 {
     background-color: white;
     position: sticky;
     top: 0;
+    width: 100vw;
 }
 
 #main-app-bar > * {
@@ -404,6 +413,13 @@ h3 {
 
 /* Connections Page */
 
+#connections-main-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+}
+
 #connections-form-box {
     display: flex;
     flex-direction: column;
@@ -415,4 +431,5 @@ h3 {
     display: flex;
     flex-direction: row;
     gap: 1rem;
+    align-items: start;
 }
