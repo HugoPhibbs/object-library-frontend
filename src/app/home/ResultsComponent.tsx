@@ -13,7 +13,7 @@ import {
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Link from "next/link";
 import {IfcDownloadTableCell, ObjectImage} from "@/components/common";
-import {FilteredLibraryObject, LibraryObject} from "@/utils";
+import {FilteredLibraryResult, LibraryObjectData} from "@/utils";
 import _, {orderBy} from "lodash";
 
 // Define columns
@@ -32,7 +32,7 @@ const columns: ColumnData[] = [
     {id: "download", label: "Download", canSort: false},
 ];
 
-function Row({object}: { object: LibraryObject }) {
+function Row({object}: { object: LibraryObjectData }) {
     return (
         <TableRow hover>
             <TableCell><ViewObjectLink object_id={object.id} label = {object.name}/></TableCell>
@@ -83,8 +83,8 @@ function SortByDropdown({orderBy, setOrderBy}: {
     );
 }
 
-export default function Results({data}: { data: FilteredLibraryObject[] }) {
-    const [sortedData, setSortedData] = useState<FilteredLibraryObject[]>([]);
+export default function Results({data}: { data: FilteredLibraryResult<LibraryObjectData>[] }) {
+    const [sortedData, setSortedData] = useState<FilteredLibraryResult<LibraryObjectData>[]>([]);
     const [orderBy, setOrderBy] = useState("score-desc");
 
     useEffect(() => {
@@ -113,7 +113,7 @@ export default function Results({data}: { data: FilteredLibraryObject[] }) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {sortedData.map((object: FilteredLibraryObject) => (
+                        {sortedData.map((object: FilteredLibraryResult<LibraryObjectData>) => (
                             <Row key={object.data.id} object={object.data}/>
                         ))}
                     </TableBody>

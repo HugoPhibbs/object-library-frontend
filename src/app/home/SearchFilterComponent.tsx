@@ -1,7 +1,17 @@
 "use client";
 
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
-import {Box, Button, Collapse, FormControl, FormControlLabel, FormLabel, Switch, TextField} from "@mui/material";
+import {
+    Box,
+    Button,
+    Collapse,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    Switch,
+    TextField,
+    Typography
+} from "@mui/material";
 import {useState} from "react";
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -126,7 +136,6 @@ export class FormValues {
     range: Record<FormField, { min: number, max: number }>;
     exact: Record<FormField, number>;
     match: Record<FormField, string>;
-
 
     constructor(search: string,
                 range: Record<FormField, { min: number, max: number }>,
@@ -369,9 +378,9 @@ export default function SearchFilter({handleFilterSubmitToParent}: {
         <Box component="form" onSubmit={handleSubmit(onSubmit)} id={"search-filter"}>
 
             <Box id={"search-filter-header"}>
-                <h2 id={"search-filter-title"}>
+                <Typography variant="h2" id={"search-filter-title"}>
                     Search and Filter
-                </h2>
+                </Typography>
 
                 <Button type="button" onClick={handleReset} variant="outlined" color="error">Reset</Button>
             </Box>

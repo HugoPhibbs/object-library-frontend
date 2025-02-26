@@ -14,12 +14,12 @@ export enum UnitsToString {
     TIME_YEARS = "yrs"
 }
 
-export type FilteredLibraryObject = {
+export interface FilteredLibraryResult<T> {
     score: number;
-    data: LibraryObject;
+    data: T;
 }
 
-export type LibraryObject = {
+export type LibraryObjectData = {
     id: string;
     name: string;
     object_type: string;
@@ -30,3 +30,33 @@ export type LibraryObject = {
     units: Record<string, any>;
     property_sets: Record<string, any>;
 };
+
+export type LibraryConnectionData = {
+    connection: {
+        bolts: {
+            diameter: number,
+            total_bottom: number,
+            total_top: number
+        },
+        cleat: {
+            length: number,
+            thickness: number
+            width: number
+        },
+        fillet_welds: {
+            flange: number,
+            web: string
+        },
+    },
+    design_capacity: {
+        moment_bottom: number,
+        moment_top: number,
+        shear_capacity: number
+    }
+    connection_type: string,
+    id: string,
+    mass: number,
+    moment: number,
+    shear: number,
+    section: string,
+}

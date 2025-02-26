@@ -17,7 +17,7 @@ import {DownloadTableCell, IfcDownloadTableCell, ObjectImage} from "@/components
 import api from "@/api";
 
 import _ from 'lodash';
-import {booleanToYesNo, LibraryObject, UnitsToString} from "@/utils";
+import {booleanToYesNo, LibraryObjectData, UnitsToString} from "@/utils";
 
 const mainDescriptionTableAttributes = [
     {label: "ID", object_path: "id"},
@@ -90,7 +90,7 @@ function TableWithTitle({title, children}: { title: string, children: React.Reac
     );
 }
 
-function MainAttributeTable({currObject}: { currObject: LibraryObject | null }) {
+function MainAttributeTable({currObject}: { currObject: LibraryObjectData | null }) {
     return (
         <TableWithTitle title="Main Attributes">
             <TableHead>
@@ -120,7 +120,7 @@ function MainAttributeTable({currObject}: { currObject: LibraryObject | null }) 
 }
 
 function CollapsableGroupedAttributesTable({currObject, attributeGroupName, attributes}: {
-    currObject: LibraryObject | null,
+    currObject: LibraryObjectData | null,
     attributeGroupName: string,
     attributes: DetailedAttribute[]
 }) {
@@ -161,7 +161,7 @@ function CollapsableGroupedAttributesTable({currObject, attributeGroupName, attr
     )
 }
 
-function ObjectFilesTable({currObject}: { currObject: LibraryObject | null }) {
+function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }) {
     return (
         <TableWithTitle title="Object Files">
             <TableHead>
@@ -194,7 +194,7 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObject | null }) {
 }
 
 export default function ViewObject() {
-    const [currObject, setCurrObject] = React.useState<LibraryObject | null>(null);
+    const [currObject, setCurrObject] = React.useState<LibraryObjectData | null>(null);
 
     const {object_id} = useParams<{ object_id: string }>();
 
