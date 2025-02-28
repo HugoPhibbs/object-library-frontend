@@ -303,10 +303,10 @@ function AttributeGroupFilters({register, control, attribute_group_id}: {
 
                 <Collapse in={open}>
                     <Box className="input-attributes-group">
-                        {attributes.map((attribute) => {
+                        {attributes.map((attribute, index) => {
                             const field = `${attribute_group_id}.${attribute.id}` as FormField;
 
-                            return <InputSelector key={field}
+                            return <InputSelector key={index}
                                                   control={control}
                                                   formField={field}
                                                   attributeData={attribute}

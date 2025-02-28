@@ -113,8 +113,8 @@ export default function Results({data}: { data: FilteredLibraryResult<LibraryObj
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {sortedData.map((object: FilteredLibraryResult<LibraryObjectData>) => (
-                            <Row key={object.data.id} object={object.data}/>
+                        {sortedData.map((object: FilteredLibraryResult<LibraryObjectData>, index) => (
+                            <Row key={index} object={object.data}/>
                         ))}
                     </TableBody>
                 </Table>

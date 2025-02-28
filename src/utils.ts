@@ -58,5 +58,5 @@ export type LibraryConnectionData = {
     mass: number,
     moment: number,
     shear: number,
-    section: string,
+    section_type: string,
 }

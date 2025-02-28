@@ -24,10 +24,10 @@ import {FilteredLibraryResult, LibraryConnectionData} from "@/utils";
 const connectionAttributesMetaData: Record<string, Record<string, string | boolean>> = {
     connection_type: {label: "Connection Type"},
     id: {label: "ID", exclude: true},
-    mass: {label: "Mass"},
+    mass_per_length: {label: "Mass/Length"},
     moment: {label: "Moment"},
     shear: {label: "Shear"},
-    section: {label: "Section"},
+    section_type: {label: "Section"},
     diameter: {label: "Diameter"},
     total_bottom: {label: "Total Bottom"},
     total_top: {label: "Total Top"},
@@ -174,7 +174,10 @@ export default function Connections() {
 
     useEffect(() => {
         api.get("/connection/section-type")
-            .then((response) => setSectionTypes(response.data.sort()))
+            .then((response) => {
+                setSectionTypes(response.data.sort())
+                console.log(response.data)
+            })
             .catch((error) => console.error("Failed to get section types: ", error));
     }, []);
 
@@ -188,8 +191,8 @@ export default function Connections() {
             params: {
                 moment: moment,
                 shear: shear,
-                match_section: data.memberSection,
-                mass: data.memberMass
+                match_section_type: data.memberSection,
+                mass_per_length: data.massPerLength,
             }
         }).then((response) => {
             const data = response.data;
