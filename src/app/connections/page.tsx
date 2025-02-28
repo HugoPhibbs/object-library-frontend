@@ -19,15 +19,23 @@ import {
 import {Controller, useForm} from "react-hook-form";
 import api from "@/api";
 import React, {Fragment, useEffect} from "react";
-import {FilteredLibraryResult, LibraryConnectionData} from "@/utils";
+import {FilteredLibraryResult, flattenObject, LibraryConnectionData} from "@/utils";
+import {SelectConnectionType, SelectMomentShearRatio} from "@/components/common";
+import {useSearchParams} from "next/navigation";
+import {fontWeight} from "@mui/system";
 
-const connectionAttributesMetaData: Record<string, Record<string, string | boolean>> = {
-    connection_type: {label: "Connection Type"},
+type AttributeMetaData = {
+    label: string,
+    exclude?: boolean
+}
+
+const connectionAttributesMetaData: Record<string, AttributeMetaData> = {
+    connection_type: {label: "Connection Type", exclude: true},
     id: {label: "ID", exclude: true},
-    mass_per_length: {label: "Mass/Length"},
-    moment: {label: "Moment"},
-    shear: {label: "Shear"},
-    section_type: {label: "Section"},
+    mass_per_length: {label: "Mass/Length", exclude: true},
+    moment: {label: "Moment", exclude: true},
+    shear: {label: "Shear", exclude: true},
+    section_type: {label: "Section", exclude: true},
     diameter: {label: "Diameter"},
     total_bottom: {label: "Total Bottom"},
     total_top: {label: "Total Top"},
@@ -46,52 +54,52 @@ const connectionAttributesMetaData: Record<string, Record<string, string | boole
     connection: {label: "Connection"},
 };
 
-const flattenObject = (obj: Record<string, any>, prefix = ""): Record<string, any> => {
-    return Object.entries(obj).reduce((acc, [key, value]) => {
-        const newKey = prefix ? `${prefix}.${key}` : key;
-        if (typeof value === "object" && value !== null) {
-            Object.assign(acc, flattenObject(value, newKey));
-        } else {
-            // @ts-ignore
-            acc[newKey] = value;
-        }
-        return acc;
-    }, {});
-};
-
 function ConnectionTable({connectionData}: { connectionData: FilteredLibraryResult<LibraryConnectionData> }) {
     if (!connectionData?.data) return null;
 
-    const renderRow = (key: string, value: any, level = 0) => {
-        if (typeof value === "object" && value !== null) {
-            return (
-                <Fragment key={key}>
-                    <TableRow sx={{backgroundColor: level === 0 ? "#ddd" : "#eee"}}>
-                        <TableCell colSpan={2} sx={{fontWeight: "bold"}}>
-                            {connectionAttributesMetaData[key].label}
-                        </TableCell>
-                    </TableRow>
-                    {Object.entries(value).map(([subKey, subValue]): any => renderRow(subKey, subValue, level + 1))}
-                </Fragment>
-            );
-        }
-        return (
-            !connectionAttributesMetaData[key].exclude ? (
-                <TableRow key={key}>
-                    <TableCell sx={{pl: level * 2 + 1}}>{connectionAttributesMetaData[key].label}</TableCell>
-                    <TableCell>{value}</TableCell>
-                </TableRow>
-            ) : null
-        );
-    };
+    const flattenedConnectionData = flattenObject(connectionData.data);
 
     return (
-        <Box>
+        <Box id={"connection-table-box"}>
             <Typography variant="h3">Connection Data</Typography>
             <TableContainer component={Paper}>
-                <Table>
+                <Table sx={{
+                    borderCollapse: "collapse",
+                    "& td, & th": {border: 1, borderColor: "grey.400"}, // no otherwise neat way to do borders for all cells
+                }}>
                     <TableBody>
-                        {Object.entries(connectionData.data).map(([key, value]) => renderRow(key, value))}
+                        <TableRow>
+                            <TableCell align={"center"} colSpan={6}
+                                       className={"connection-table-group-cell"}>Connection</TableCell>
+                            <TableCell align={"center"} colSpan={2} className={"connection-table-group-cell"}
+                                       rowSpan={2}>Design Capacity</TableCell>
+                        </TableRow>
+
+                        <TableRow>
+                            {["Bolts", "Cleat", "Fillet Welds"].map((label, index) => (
+                                <TableCell align={"center"} key={index} colSpan={2}
+                                           className={"connection-table-subgroup-cell"}>{label}</TableCell>
+                            ))}
+                        </TableRow>
+
+                        {[
+                            ["width", "total_top", "flange", "moment_top"],
+                            ["length", "total_bottom", "web", "moment_bottom"],
+                            ["thickness", "diameter", "", "shear"]
+                        ].map((row, rowIndex) => (
+                            <TableRow key={rowIndex}>
+                                {row.map((attribute_name: string, colIndex: number) => {
+                                    if (!attribute_name) return <TableCell className={"bg-stripes"} key={colIndex} colSpan={2}></TableCell>
+
+                                    return <React.Fragment key={rowIndex * 3 + colIndex}>
+                                        <TableCell
+                                            align={"center"}>{connectionAttributesMetaData[attribute_name].label}</TableCell>
+                                        <TableCell
+                                            align={"center"}>{flattenedConnectionData[attribute_name]}</TableCell>
+                                    </React.Fragment>
+                                })}
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -99,37 +107,25 @@ function ConnectionTable({connectionData}: { connectionData: FilteredLibraryResu
     );
 }
 
-function ConnectionsSearchForm({onSubmit, register, control, sectionTypes,}: {
+function ConnectionsSearchForm({onSubmit, register, control, sectionTypes, defaultValues}: {
     onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>,
     register: any,
     sectionTypes: string[],
-    control: any
+    control: any,
+    defaultValues?: Record<string, any>,
 }) {
 
     return (
-        <Box className={"outline-box"} id={"connections-form-box"} component={"form"} onSubmit={onSubmit}>
+        <form className={"outline-box"} id={"connections-form-box"} onSubmit={onSubmit}>
             <Box>
                 <Typography variant={"h2"}>Enter Details</Typography>
             </Box>
 
-            <FormControl>
-                <InputLabel id="connection-type-select-label">Connection Type</InputLabel>
-
-                <Controller
-                    name="connectionType"
-                    control={control}
-                    render={({field}) => (
-                        <Select labelId="connection-type-select-label" {...field}
-                                id="connection-type-select" type="text" label="Connection Type" required>
-                            <MenuItem value="mep-8">MEP-8</MenuItem>
-                        </Select>
-                    )}
-                />
-            </FormControl>
+            <SelectConnectionType control={control}/>
 
             <FormControl>
                 <InputLabel id={"member-type-select-label"}>Member Type</InputLabel>
-                <Controller control={control} name={"memberSection"} render={({field}) => (
+                <Controller control={control} name={"sectionType"} render={({field}) => (
                     <Select labelId={"member-type-select-label"} {...field}
                             id={"member-type-select"} type="text" label={"Member Type"} required>
                         {sectionTypes.map((sectionType, index) => (
@@ -139,41 +135,38 @@ function ConnectionsSearchForm({onSubmit, register, control, sectionTypes,}: {
                 )}/>
             </FormControl>
 
-            <TextField label="Member Mass/Length (kg/m)" {...register("memberMass")} type="number"
+            <TextField label="Member Mass/Length (kg/m)" {...register("massPerLength")} type="number"
                        slotProps={{htmlInput: {step: "0.1", min: 0}}} required/>
 
-            <FormControl>
-                <InputLabel id={"moment-shear-ratio-label"}>Moment/Shear Ratio (%)</InputLabel>
-
-                <Controller
-                    name="momentShearRatio"
-                    control={control}
-                    render={({field}) => (
-                        <Select labelId={"moment-shear-ratio-label"} {...field}
-                                id={"moment-shear-ratio"} type="text" label={"Moment/Shear Ratio (%)"} required>
-                            <MenuItem value={"50/25"}>50/25</MenuItem>
-                            <MenuItem value={"70/35"}>70/35</MenuItem>
-                            <MenuItem value={"100/50"}>100/50</MenuItem>
-                        </Select>
-                    )}
-                />
-            </FormControl>
+            <SelectMomentShearRatio control={control}/>
 
             <Button type={"submit"} variant={"contained"}>Find Connection</Button>
-        </Box>
+        </form>
     );
 }
 
 export default function Connections() {
-    const {register, handleSubmit, control} = useForm({
-        defaultValues: {memberSection: "", connectionType: "", momentShearRatio: ""}
-    });
+    // Get default values from URL search params, if any
+    const searchParams = useSearchParams();
+    const defaultMassPerLength = searchParams.get("massPerLength") || "";
+    const defaultChosenSectionType = searchParams.get("sectionType") || "";
+
+    const defaultValues = {
+        sectionType: defaultChosenSectionType,
+        massPerLength: defaultMassPerLength,
+        momentShearRatio: ""
+    };
+    if (defaultMassPerLength) defaultValues["massPerLength"] = defaultMassPerLength; // Don't want to an undefined default value
+
+    const {register, handleSubmit, control} = useForm({defaultValues: defaultValues});
+
+    // Now can continue...
     const [filteredConnections, setFilteredConnections] = React.useState<FilteredLibraryResult<LibraryConnectionData>[]>([]);
 
     const [sectionTypes, setSectionTypes] = React.useState([]);
 
     useEffect(() => {
-        api.get("/connection/section-type")
+        api.get("/connection/unique-values", {params: {field: "section_type"}})
             .then((response) => {
                 setSectionTypes(response.data.sort())
                 console.log(response.data)
@@ -182,6 +175,7 @@ export default function Connections() {
     }, []);
 
 
+    // For the form submission
     const onSubmit = (data: any) => {
         const momentShearRatio = data.momentShearRatio;
         // Split the moment shear ratio into two numbers
@@ -191,7 +185,7 @@ export default function Connections() {
             params: {
                 moment: moment,
                 shear: shear,
-                match_section_type: data.memberSection,
+                match_section_type: data.sectionType,
                 mass_per_length: data.massPerLength,
             }
         }).then((response) => {

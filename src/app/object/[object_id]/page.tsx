@@ -3,7 +3,7 @@
 import {useParams} from "next/navigation";
 import {
     Accordion, AccordionDetails, AccordionSummary,
-    Box, Paper,
+    Box, Button, FormControl, Paper,
     Table,
     TableBody,
     TableCell,
@@ -18,6 +18,8 @@ import api from "@/api";
 
 import _ from 'lodash';
 import {booleanToYesNo, LibraryObjectData, UnitsToString} from "@/utils";
+import {useForm} from "react-hook-form";
+import Link from "next/link";
 
 const mainDescriptionTableAttributes = [
     {label: "ID", object_path: "id"},
@@ -225,7 +227,7 @@ export default function ViewObject() {
 
             <Box sx={{display: "flex", flexDirection: "column", gap: "1rem"}}>
                 <Box>
-                    <h3 id={"detailed-attributes-title"}>Detailed Attributes</h3>
+                    <Typography variant={"h3"}>Detailed Attributes</Typography>
                 </Box>
 
                 <Box>
@@ -234,6 +236,25 @@ export default function ViewObject() {
                                                            attributeGroupName={groupName} attributes={attributes}/>
                     ))}
                 </Box>
+            </Box>
+
+            <Box>
+                <Box>
+                    <Typography variant={"h3"}>Connection Information </Typography>
+                </Box>
+
+                <Button>
+                    <Link href={{
+                        pathname: "/connections",
+                        query: {
+                            "sectionType": currObject?.property_sets["Identity Data"]["section_type"]["value"],
+                            "massPerLength": currObject?.property_sets["Structural"]["MassPerUnitLength_ANZRS"]["value"]
+                        }
+                    }}
+                          passHref>
+                        Open connections tool
+                    </Link>
+                </Button>
             </Box>
 
         </Box>

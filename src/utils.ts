@@ -60,3 +60,20 @@ export type LibraryConnectionData = {
     shear: number,
     section_type: string,
 }
+
+export function flattenObject(obj: Record<string, any>): Record<string, any> {
+    const result: Record<string, any> = {};
+
+    function recurse(subObj: Record<string, any>) {
+        for (const key in subObj) {
+            if (typeof subObj[key] === 'object' && subObj[key] !== null) {
+                recurse(subObj[key]);
+            } else {
+                result[key] = subObj[key];
+            }
+        }
+    }
+
+    recurse(obj);
+    return result;
+}

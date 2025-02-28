@@ -4,8 +4,9 @@ import React, {useEffect, useState} from 'react';
 import api from "@/api";
 import Image from "next/image";
 import {saveAs} from "file-saver";
-import {Box, Button, MenuItem, Select, TableCell} from "@mui/material";
+import {Box, Button, FormControl, InputLabel, MenuItem, Select, TableCell} from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
+import {Controller} from "react-hook-form";
 
 export function ObjectImage({object_id, width, height, imgClassName, imgID}: {
     object_id: string,
@@ -83,4 +84,64 @@ export function IfcIcon({width = 36, height = 36}: { width?: number, height?: nu
                   width={width}
                   height={height}
                   alt="IFC Logo"/>
+}
+
+export function SelectConnectionType({control, defaultValue}: { control: any, defaultValue?: string }) {
+
+    const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
+
+    useEffect(() => {
+        api.get("/connection/unique-values", {params: {field: "connection_type"}})
+            .then((response) => {
+                setConnectionTypes(response.data.sort())
+                console.log(response.data)
+            })
+            .catch((error) => console.error("Failed to get section types: ", error));
+    }, []);
+
+    // Since defaultValue can't be undefined, need to do this trick see https://react-hook-form.com/docs/usecontroller/controller
+    const extraControlProps = defaultValue ? {"defaultValue": defaultValue} : {};
+
+    //{/*{...extraControlProps}*/} TODO remove me if unnecessary to add in Controller below
+
+    return (
+        <FormControl>
+            <InputLabel id="connection-type-select-label">Connection Type</InputLabel>
+
+            <Controller
+                name="connectionType"
+                control={control}
+
+                render={({field}) => (
+                    <Select labelId="connection-type-select-label" {...field}
+                            id="connection-type-select" type="text" label="Connection Type" required>
+                        {connectionTypes.map((connectionType, index) => (
+                            <MenuItem key={index} value={connectionType}>{connectionType}</MenuItem>
+                        ))}
+                    </Select>
+                )}
+            />
+        </FormControl>
+    )
+}
+
+export function SelectMomentShearRatio({control}: { control: any }) {
+    return (
+        <FormControl>
+            <InputLabel id={"moment-shear-ratio-label"}>Moment/Shear Ratio (%)</InputLabel>
+
+            <Controller
+                name="momentShearRatio"
+                control={control}
+                render={({field}) => (
+                    <Select labelId={"moment-shear-ratio-label"} {...field}
+                            id={"moment-shear-ratio"} type="text" label={"Moment/Shear Ratio (%)"} required>
+                        <MenuItem value={"50/25"}>50/25</MenuItem>
+                        <MenuItem value={"70/35"}>70/35</MenuItem>
+                        <MenuItem value={"100/50"}>100/50</MenuItem>
+                    </Select>
+                )}
+            />
+        </FormControl>
+    )
 }
