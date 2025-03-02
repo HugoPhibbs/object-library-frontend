@@ -3,7 +3,7 @@
 import {useParams} from "next/navigation";
 import {
     Accordion, AccordionDetails, AccordionSummary,
-    Box, Button, FormControl, Paper,
+    Box, Button, Divider, FormControl, Paper,
     Table,
     TableBody,
     TableCell,
@@ -79,11 +79,11 @@ const detailedDescriptionTableAttributes = {
 } as { [key: string]: DetailedAttribute[] }
 
 
-function TableWithTitle({title, children}: { title: string, children: React.ReactNode }) {
+function TableWithTitle({title, children, id}: { title: string, children: React.ReactNode, id: string }) {
     return (
-        <Box className="table-with-title">
+        <Box id={id} className="table-with-title table-vertical-internal-borders">
             <h3>{title}</h3>
-            <TableContainer sx={{width: "auto"}}>
+            <TableContainer sx={{width: "100%"}} component={Paper}>
                 <Table className={"data-table"}>
                     {children}
                 </Table>
@@ -94,7 +94,7 @@ function TableWithTitle({title, children}: { title: string, children: React.Reac
 
 function MainAttributeTable({currObject}: { currObject: LibraryObjectData | null }) {
     return (
-        <TableWithTitle title="Main Attributes">
+        <TableWithTitle id={"main-attributes-table"} title="Main Attributes">
             <TableHead>
                 <TableRow>
                     <TableCell className={"table-column-header-cell"}>Attribute</TableCell>
@@ -133,7 +133,7 @@ function CollapsableGroupedAttributesTable({currObject, attributeGroupName, attr
             </AccordionSummary>
 
             <AccordionDetails>
-                <TableContainer component={Paper}>
+                <TableContainer component={Paper} className={"table-vertical-internal-borders"}>
                     <Table>
                         <TableHead className={"table-column-header-cell"}>
                             <TableRow>
@@ -165,7 +165,7 @@ function CollapsableGroupedAttributesTable({currObject, attributeGroupName, attr
 
 function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }) {
     return (
-        <TableWithTitle title="Object Files">
+        <TableWithTitle id={"object-files-table"} title="Object Files">
             <TableHead>
                 <TableRow>
                     <TableCell className={"table-column-header-cell"}>File Name</TableCell>
@@ -214,21 +214,22 @@ export default function ViewObject() {
                 <ObjectImage object_id={object_id} width={500} height={500}
                              imgID={"large-view-object-img"}/>
 
-                <Box id={"main-description-box"}>
+                <Paper id={"main-description-box"}>
                     <h2 className={"sub-title"}>{currObject?.name}</h2>
+
+                    <Divider/>
 
                     <Box sx={{display: "flex", flexDirection: "row", gap: "1rem", justifyContent: "space-around"}}>
                         <MainAttributeTable currObject={currObject}/>
+
                         <ObjectFilesTable currObject={currObject}/>
                     </Box>
 
-                </Box>
+                </Paper>
             </Box>
 
-            <Box sx={{display: "flex", flexDirection: "column", gap: "1rem"}}>
-                <Box>
-                    <Typography variant={"h3"}>Detailed Attributes</Typography>
-                </Box>
+            <Box id={"detailed-attributes-box"} component={Paper}>
+                <Typography variant={"h3"}>Detailed Attributes</Typography>
 
                 <Box>
                     {Object.entries(detailedDescriptionTableAttributes).map(([groupName, attributes], groupIndex) => (
@@ -238,10 +239,8 @@ export default function ViewObject() {
                 </Box>
             </Box>
 
-            <Box>
-                <Box>
-                    <Typography variant={"h3"}>Connection Information </Typography>
-                </Box>
+            <Box id={"object-links-box"} component={Paper}>
+                <Typography variant={"h3"}>Useful Links </Typography>
 
                 <Button>
                     <Link href={{
@@ -253,6 +252,12 @@ export default function ViewObject() {
                     }}
                           passHref>
                         Open connections tool
+                    </Link>
+                </Button>
+
+                <Button>
+                    <Link href={`https://steelandtube.co.nz/`} passHref>
+                        Manufacturer&#39;s Website
                     </Link>
                 </Button>
             </Box>

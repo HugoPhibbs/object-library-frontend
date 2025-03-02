@@ -63,10 +63,7 @@ function ConnectionTable({connectionData}: { connectionData: FilteredLibraryResu
         <Box id={"connection-table-box"}>
             <Typography variant="h3">Connection Data</Typography>
             <TableContainer component={Paper}>
-                <Table sx={{
-                    borderCollapse: "collapse",
-                    "& td, & th": {border: 1, borderColor: "grey.400"}, // no otherwise neat way to do borders for all cells
-                }}>
+                <Table className={"lined-table"}>
                     <TableBody>
                         <TableRow>
                             <TableCell align={"center"} colSpan={6}

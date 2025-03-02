@@ -365,6 +365,19 @@ h3 {
     display: flex;
     gap: 1rem;
     flex-direction: column;
+    padding: 0.5rem;
+}
+
+#main-attributes-table {
+    width: 25rem;
+}
+
+#object-links-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.5rem;
 }
 
 /* Uploading an object */
@@ -460,4 +473,36 @@ h3 {
 .connection-table-subgroup-cell {
     font-weight: bold !important;
     background-color: #eee;
+}
+
+/* Table Styles */
+
+.lined-table {
+    border-collapse: collapse;
+}
+
+.lined-table td, .lined-table th {
+    border: 1px solid;
+    border-color: grey;
+}
+
+.table-vertical-internal-borders {
+    border-collapse: collapse;
+}
+
+.table-vertical-internal-borders td,
+.table-vertical-internal-borders th {
+    border-left: 1px solid #dcdcdc;
+    border-right: 1px solid #dcdcdc;
+}
+
+/* Remove borders on the first and last column */
+.table-vertical-internal-borders td:first-child,
+.table-vertical-internal-borders th:first-child {
+    border-left: none;
+}
+
+.table-vertical-internal-borders td:last-child,
+.table-vertical-internal-borders th:last-child {
+    border-right: none;
 }
