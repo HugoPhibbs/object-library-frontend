@@ -2,9 +2,10 @@
 
 import React, {useEffect} from "react";
 import api from "@/api";
-import SearchFilter, {FormValues} from "@/app/home/SearchFilterComponent";
+import SearchFilter from "@/app/home/SearchFilterComponent";
 import Box from "@mui/material/Box";
 import Results from "@/app/home/ResultsComponent";
+import {FormValues} from "@/app/home/FormValues";
 
 export default function Home() {
 
