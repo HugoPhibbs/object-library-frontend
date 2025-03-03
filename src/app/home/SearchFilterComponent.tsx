@@ -17,14 +17,16 @@ import {useState} from "react";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import {UnitsToString} from "@/utils";
+import {encodeField, FormValues} from "@/app/home/FormValues";
 
-type FormField =
+export type FormField =
     "search"
     | "name"
     | "material"
     | "Dimensions.Height"
     | "Dimensions.Width"
-    | "Dimensions.Length";
+    | "Dimensions.Length"
+    | string;
 
 type AttributeMetadata = {
     id: string,
@@ -122,101 +124,14 @@ const attributeGroups: Record<string, AttributeGroupMetadata> = {
     }
 }
 
-function encodeField(field: FormField): string {
-    return field.replace(".", "%2E");
-}
-
-function decodeField(field: string): FormField {
-    return field.replace("%2E", ".") as FormField;
-}
-
-export class FormValues {
-
-    search?: string;
-    range: Record<FormField, { min: number, max: number }>;
-    exact: Record<FormField, number>;
-    match: Record<FormField, string>;
-
-    constructor(search: string,
-                range: Record<FormField, { min: number, max: number }>,
-                exact: Record<FormField, number>,
-                match: Record<FormField, string>) {
-        this.search = search;
-        this.range = range;
-        this.exact = exact;
-        this.match = match;
-    }
-
-    static zeroOrTruthy(value: any): boolean {
-        return value === 0 || value;
-    }
-
-    static toFlatObject(formValues: FormValues): any {
-        console.log(formValues);
-
-        const result: any = {};
-
-        if (FormValues.zeroOrTruthy(formValues.search)) {
-            result["search"] = formValues.search;
-        }
-
-        for (const key in formValues.match) {
-            const typedKey = key as FormField;
-            const value = formValues.match[typedKey];
-
-            if (FormValues.zeroOrTruthy(value)) {
-                result[`match_${decodeField(key)}`] = formValues.match[typedKey];
-            }
-        }
-
-        for (const key in formValues.range) {
-            const typedKey = key as FormField;
-            const min = formValues.range[typedKey].min;
-            const max = formValues.range[typedKey].max;
-
-            if (!FormValues.zeroOrTruthy(min) && !FormValues.zeroOrTruthy(max)) {
-                continue;
-            }
-
-            let result_string = "";
-
-            if (FormValues.zeroOrTruthy(min)) {
-                result_string += `${min}`;
-            }
-
-            result_string += "to";
-
-            if (FormValues.zeroOrTruthy(max)) {
-                result_string += `${max}`;
-            }
-
-            result[`range_${decodeField(key)}`] = result_string;
-        }
-
-        for (const key in formValues.exact) {
-            const typedKey = key as FormField;
-            const value = formValues.exact[typedKey];
-
-            if (FormValues.zeroOrTruthy(value)) {
-                result[decodeField(key)] = formValues.exact[typedKey];
-            }
-        }
-
-        return result;
-    }
-}
-
 function ExactSelector({control, formField, attributeData, labelOverride = "Value"}: {
     control: any
     formField: FormField,
     attributeData: AttributeMetadata,
     labelOverride?: string
 }) {
-    return (
-        <Box className="exact-selector">
-            <ControllableTextField name={`exact.${encodeField(formField)}`} control={control}
+    return (<ControllableTextField name={`exact.${encodeField(formField)}`} control={control}
                                    attributeData={attributeData} labelOverride={labelOverride}/>
-        </Box>
     )
 }
 
@@ -238,7 +153,11 @@ function ExactAndRangeSelector({control, formField, attributeData}: {
                                            attributeData={attributeData} labelOverride={"Max"}/>
                 </Box>
                 :
-                <ExactSelector control={control} formField={formField} attributeData={attributeData}/>}
+                <Box className="range-selector">
+                        <ExactSelector control={control} formField={`${formField}.val`} attributeData={attributeData}/>
+                    <ExactSelector control={control} formField={`${formField}.tol`} attributeData={attributeData} labelOverride={"(%) Tol"}/>
+                </Box>
+            }
 
             <FormControlLabel control={<Switch className="input-range-switch" defaultChecked
                                                onChange={() => setUseRangeOrExact(!useRangeOrExact)}/>}
@@ -247,7 +166,7 @@ function ExactAndRangeSelector({control, formField, attributeData}: {
     )
 }
 
-function InputSelector({control, formField, attributeData}: {
+function AttributeInputSelector({control, formField, attributeData}: {
     control: any
     formField: FormField,
     attributeData: AttributeMetadata
@@ -272,8 +191,7 @@ function InputSelector({control, formField, attributeData}: {
         ;
 }
 
-function AttributeGroupFilters({register, control, attribute_group_id}: {
-    register: any,
+function AttributeGroupFilters({control, attribute_group_id}: {
     control: any,
     attribute_group_id: string
 }) {
@@ -306,7 +224,7 @@ function AttributeGroupFilters({register, control, attribute_group_id}: {
                         {attributes.map((attribute, index) => {
                             const field = `${attribute_group_id}.${attribute.id}` as FormField;
 
-                            return <InputSelector key={index}
+                            return <AttributeInputSelector key={index}
                                                   control={control}
                                                   formField={field}
                                                   attributeData={attribute}
@@ -395,7 +313,7 @@ export default function SearchFilter({handleFilterSubmitToParent}: {
                                    className={"large-input-text-field"} fieldType={"text"}/>
 
             {Object.entries(attributeGroups).map(([attribute_group_id, _]) => (
-                <AttributeGroupFilters key={attribute_group_id} register={register} control={control}
+                <AttributeGroupFilters key={attribute_group_id} control={control}
                                        attribute_group_id={attribute_group_id}/>
             ))}
 
