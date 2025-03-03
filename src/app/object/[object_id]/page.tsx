@@ -75,7 +75,35 @@ const detailedDescriptionTableAttributes = {
             object_path: "property_sets.Structural Analysis.Section Area.value",
             units: UnitsToString.AREA
         },
+    ],
+    "Environmental Impact": [
+        {
+            label: "Expected Service Life",
+            object_path: "property_sets.Pset_EnvironmentalImpactIndicators.ExpectedServiceLife.value",
+            units: UnitsToString.TIME_YEARS
+        },
+        {
+            label: "Water Consumption",
+            object_path: "property_sets.Pset_EnvironmentalImpactIndicators.WaterConsumptionPerUnit.value",
+            units: UnitsToString.VOLUME
+        },
+        {
+            label: "eCO2 emissions",
+            object_path: "property_sets.Pset_EnvironmentalImpactIndicators.ClimateChangePerUnit.value",
+            units: UnitsToString.WEIGHT
+        },
+        {
+            label: "Renewable Energy Consumption",
+            object_path: "property_sets.Pset_EnvironmentalImpactIndicators.RenewableEnergyConsumptionPerUnit.value",
+            units: UnitsToString.ELECTRIC_ENERGY
+        },
+        {
+            label: "Non-Renewable Energy Consumption",
+            object_path: "property_sets.Pset_EnvironmentalImpactIndicators.NonRenewableEnergyConsumptionPerUnit.value",
+            units: UnitsToString.ELECTRIC_ENERGY
+        }
     ]
+
 } as { [key: string]: DetailedAttribute[] }
 
 
