@@ -86,6 +86,34 @@ export function IfcIcon({width = 36, height = 36}: { width?: number, height?: nu
                   alt="IFC Logo"/>
 }
 
+export function RecycleIcon({width = 36, height = 36}: { width?: number, height?: number }) {
+    return <Image src="/recycle_icon.svg"
+                  width={width}
+                  height={height}
+                  alt="Recycle Icon"/>
+}
+
+export function FactoryIcon({width = 36, height = 36}: { width?: number, height?: number }) {
+    return <Image src="/factory_icon.svg"
+                  width={width}
+                  height={height}
+                  alt="Factory Icon"/>
+}
+
+export function CheckIcon({width = 36, height = 36}: { width?: number, height?: number }) {
+    return <Image src="/check_icon.svg"
+                  width={width}
+                  height={height}
+                  alt="Check Icon"/>
+}
+
+export function CrossIcon({width = 36, height = 36}: { width?: number, height?: number }) {
+    return <Image src="/cross_icon.svg"
+                  width={width}
+                  height={height}
+                  alt="Cross Icon"/>
+}
+
 export function SelectConnectionType({control, defaultValue}: { control: any, defaultValue?: string }) {
 
     const [connectionTypes, setConnectionTypes] = useState<string[]>([]);

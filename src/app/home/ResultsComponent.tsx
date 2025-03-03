@@ -12,9 +12,10 @@ import {
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Link from "next/link";
-import {IfcDownloadTableCell, ObjectImage} from "@/components/common";
+import {IfcDownloadTableCell, ObjectImage, CheckIcon, CrossIcon} from "@/components/common";
 import {FilteredLibraryResult, LibraryObjectData} from "@/utils";
 import _, {orderBy} from "lodash";
+import Image from "next/image";
 
 // Define columns
 
@@ -30,20 +31,28 @@ const columns: ColumnData[] = [
     {id: "material", label: "Material", canSort: true},
     {id: "photo", label: "Photo", canSort: false},
     {id: "download", label: "Download", canSort: false},
+    {id: "recycle", label: "Recycled", canSort: false},
 ];
 
 function Row({object}: { object: LibraryObjectData }) {
     return (
         <TableRow hover>
-            <TableCell><ViewObjectLink object_id={object.id} label = {object.name}/></TableCell>
+            <TableCell><ViewObjectLink object_id={object.id} label={object.name}/></TableCell>
             <TableCell>{object.material}</TableCell>
             <TableCell><ObjectImage object_id={object.id} width={200} height={200}/></TableCell>
             <IfcDownloadTableCell object_id={object.id}/>
+            <TableCell>
+                {Math.random() > 0.5 ?
+                    <CheckIcon/> : <CrossIcon/>
+                }
+
+
+            </TableCell>
         </TableRow>
     );
 }
 
-function ViewObjectLink({object_id, label}: { object_id: string, label?:string }) {
+function ViewObjectLink({object_id, label}: { object_id: string, label?: string }) {
     return <MuiLink className={"view-object-link"} component={Link} href={`/object/${object_id}`} underline="always">
         {label ? label : object_id} <OpenInNewIcon fontSize="small" sx={{ml: 0.5}} color={"primary"}/>
     </MuiLink>
