@@ -20,6 +20,7 @@ import _ from 'lodash';
 import {booleanToYesNo, LibraryObjectData, UnitsToString} from "@/utils";
 import {useForm} from "react-hook-form";
 import Link from "next/link";
+import {saveAs} from "file-saver";
 
 const mainDescriptionTableAttributes = [
     {label: "ID", object_path: "id"},
@@ -192,6 +193,17 @@ function CollapsableGroupedAttributesTable({currObject, attributeGroupName, attr
 }
 
 function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }) {
+
+    const handleEnvironmentalImpactDownload = (object_id: any) => {
+        api.get(`/object/${object_id}/environmental-impact`, {responseType: "blob"})
+            .then((response) => {
+                const blob = new Blob([response.data], {type: "application/pdf"});
+                saveAs(blob, `${object_id}_environmental_impact.pdf`);
+            }).catch((error) => {
+                console.error("Failed to download environmental impact report: ", error);
+        })
+    }
+
     return (
         <TableWithTitle id={"object-files-table"} title="Object Files">
             <TableHead>
@@ -216,7 +228,7 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
                 </TableRow>
                 <TableRow>
                     <TableCell>Environmental Impact Assessment</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={(id: any) => null} label={"PDF"}/>
+                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleEnvironmentalImpactDownload} label={"PDF"}/>
                 </TableRow>
             </TableBody>
         </TableWithTitle>
