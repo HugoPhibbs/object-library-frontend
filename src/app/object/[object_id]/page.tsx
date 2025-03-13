@@ -204,6 +204,17 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
         })
     }
 
+    const handleManufacturersBookletDownload = (object_id: any) => {
+        api.get(`/object/${object_id}/manufacturers-booklet`, {responseType: "blob"})
+            .then((response) => {
+                const blob = new Blob([response.data], {type: "application/pdf"});
+                saveAs(blob, `${object_id}_manufacturers_booklet.pdf`);
+            })
+            .catch((error) => {
+                console.error("Failed to download manufacturer's booklet: ", error);
+            })
+    }
+
     return (
         <TableWithTitle id={"object-files-table"} title="Object Files">
             <TableHead>
@@ -224,7 +235,7 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
                 </TableRow>
                 <TableRow>
                     <TableCell>Manufacturer&#39;s Booklet</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={(id: any) => null} label={"PDF"}/>
+                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleManufacturersBookletDownload} label={"PDF"}/>
                 </TableRow>
                 <TableRow>
                     <TableCell>Environmental Impact Assessment</TableCell>
