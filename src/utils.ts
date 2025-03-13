@@ -26,6 +26,7 @@ export type LibraryObjectData = {
     material: string;
     object_placement: string;
     ifc_type: string;
+    manufacturer_link: string;
     ifc_file_path: string;
     units: Record<string, any>;
     property_sets: Record<string, any>;

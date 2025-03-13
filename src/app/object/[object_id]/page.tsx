@@ -37,6 +37,13 @@ type DetailedAttribute = {
 }
 
 const detailedDescriptionTableAttributes = {
+    "Dimensions": [
+        {label: "Length", object_path: "property_sets.Dimensions.Length.value", units: UnitsToString.LENGTH},
+        {label: "Width", object_path: "property_sets.Dimensions.Width.value", units: UnitsToString.LENGTH},
+        {label: "Height", object_path: "property_sets.Dimensions.Height.value", units: UnitsToString.LENGTH},
+        {label: "Flange Thickness", object_path: "property_sets.Dimensions.Flange Thickness.value", units: UnitsToString.LENGTH},
+        {label: "Web Thickness", object_path: "property_sets.Dimensions.Web Thickness.value", units: UnitsToString.LENGTH},
+    ],
     "Structural": [
         {label: "Section Shape", object_path: "property_sets.Structural.Section Shape.value", units: null},
         {
@@ -200,7 +207,7 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
                 const blob = new Blob([response.data], {type: "application/pdf"});
                 saveAs(blob, `${object_id}_environmental_impact.pdf`);
             }).catch((error) => {
-                console.error("Failed to download environmental impact report: ", error);
+            console.error("Failed to download environmental impact report: ", error);
         })
     }
 
@@ -235,11 +242,13 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
                 </TableRow>
                 <TableRow>
                     <TableCell>Manufacturer&#39;s Booklet</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleManufacturersBookletDownload} label={"PDF"}/>
+                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleManufacturersBookletDownload}
+                                       label={"PDF"}/>
                 </TableRow>
                 <TableRow>
                     <TableCell>Environmental Impact Assessment</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleEnvironmentalImpactDownload} label={"PDF"}/>
+                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleEnvironmentalImpactDownload}
+                                       label={"PDF"}/>
                 </TableRow>
             </TableBody>
         </TableWithTitle>
@@ -307,7 +316,7 @@ export default function ViewObject() {
                 </Button>
 
                 <Button>
-                    <Link href={`https://steelandtube.co.nz/`} passHref>
+                    <Link href={currObject ? currObject.manufacturer_link : ""} passHref>
                         Manufacturer&#39;s Website
                     </Link>
                 </Button>
