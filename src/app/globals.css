@@ -380,6 +380,10 @@ h3 {
     padding: 0.5rem;
 }
 
+.download-dropdown-label {
+    width: 6rem
+}
+
 /* Uploading an object */
 
 #pick-upload-button-box {

@@ -41,8 +41,16 @@ const detailedDescriptionTableAttributes = {
         {label: "Length", object_path: "property_sets.Dimensions.Length.value", units: UnitsToString.LENGTH},
         {label: "Width", object_path: "property_sets.Dimensions.Width.value", units: UnitsToString.LENGTH},
         {label: "Height", object_path: "property_sets.Dimensions.Height.value", units: UnitsToString.LENGTH},
-        {label: "Flange Thickness", object_path: "property_sets.Dimensions.Flange Thickness.value", units: UnitsToString.LENGTH},
-        {label: "Web Thickness", object_path: "property_sets.Dimensions.Web Thickness.value", units: UnitsToString.LENGTH},
+        {
+            label: "Flange Thickness",
+            object_path: "property_sets.Dimensions.Flange Thickness.value",
+            units: UnitsToString.LENGTH
+        },
+        {
+            label: "Web Thickness",
+            object_path: "property_sets.Dimensions.Web Thickness.value",
+            units: UnitsToString.LENGTH
+        },
     ],
     "Structural": [
         {label: "Section Shape", object_path: "property_sets.Structural.Section Shape.value", units: null},
@@ -222,6 +230,21 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
             })
     }
 
+    const handleInspectionRecordsDownload = (object_id: any, date: string) => {
+        if (!date) {
+            console.error("No date selected for inspection record download");
+            return;
+        }
+
+        api.get(`/object/${object_id}/inspection-record`, {responseType: "blob", params: {"date": date}})
+            .then((response) => {
+                const blob = new Blob([response.data], {type: "application/pdf"});
+                saveAs(blob, `${object_id}_inspection_record_${date}.pdf`);
+            }).catch((error) => {
+            console.error("Failed to download inspection record: ", error);
+        })
+    }
+
     return (
         <TableWithTitle id={"object-files-table"} title="Object Files">
             <TableHead>
@@ -237,8 +260,8 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
                 </TableRow>
                 <TableRow>
                     <TableCell>Inspection Records</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={(id: any) => null} label={"PDF"}
-                                       dropdownOptions={["Nov 24", "Nov 23", "Nov 22"]}/>
+                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleInspectionRecordsDownload} label={"PDF"}
+                                       dropdownOptions={["Nov-24", "Nov-23", "Nov-22"]} dropDownLabel={"Date"}/>
                 </TableRow>
                 <TableRow>
                     <TableCell>Manufacturer&#39;s Booklet</TableCell>

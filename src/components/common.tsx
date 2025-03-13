@@ -34,31 +34,40 @@ export function ObjectImage({object_id, width, height, imgClassName, imgID}: {
     return <Image src={imageUrl} alt="Object" width={width} height={height} className={imgClassName} id={imgID}/>;
 }
 
-export function DownloadTableCell({object_id, handleDownload, label, dropdownOptions, StartIcon}: {
+export function DownloadTableCell({object_id, handleDownload, label, dropdownOptions, StartIcon, dropDownLabel}: {
     object_id?: string,
     handleDownload: any,
     label: string,
     dropdownOptions?: string[],
-    StartIcon?: React.ElementType
+    StartIcon?: React.ElementType,
+    dropDownLabel?: string
 }) {
 
-    const [dropdownOption, setDropdownOption] = useState<string[]>([]);
+    const [dropdownOption, setDropdownOption] = useState<string>("");
 
     const handleDropdownChange = (event: any) => {
-        setDropdownOption(event.target.value as string[]);
+        setDropdownOption(event.target.value);
     }
 
     return <TableCell className={"download-table-cell"}>
         <Box>
             {dropdownOptions ?
-                (<Select value={dropdownOption} onChange={handleDropdownChange} label={"Choose Option"}>
-                    {dropdownOptions.map((option, index) => (<MenuItem key={index}>{option}</MenuItem>))}
-                </Select>)
+                (<>
+                        <FormControl>
+                            <InputLabel id="download-dropdown-label">{dropDownLabel}</InputLabel>
+                            <Select value={dropdownOption} onChange={handleDropdownChange} label={dropDownLabel}
+                                    className={'download-dropdown-label'}>
+                                {dropdownOptions.map((option, index) => (
+                                    <MenuItem key={index} value={option}>{option}</MenuItem>))}
+                            </Select>
+                        </FormControl>
+                    </>
+                )
                 : null
             }
 
             <Button variant="contained" size="small" startIcon={StartIcon ? <StartIcon/> : <DownloadIcon/>}
-                    onClick={() => handleDownload(object_id)}>{label}
+                    onClick={() => dropdownOptions ? handleDownload(object_id, dropdownOption) : handleDownload(object_id)}>{label}
             </Button>
         </Box>
     </TableCell>
@@ -112,11 +121,6 @@ export function SelectConnectionType({control, defaultValue}: { control: any, de
             })
             .catch((error) => console.error("Failed to get section types: ", error));
     }, []);
-
-    // Since defaultValue can't be undefined, need to do this trick see https://react-hook-form.com/docs/usecontroller/controller
-    const extraControlProps = defaultValue ? {"defaultValue": defaultValue} : {};
-
-    //{/*{...extraControlProps}*/} TODO remove me if unnecessary to add in Controller below
 
     return (
         <FormControl>
