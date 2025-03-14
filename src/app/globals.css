@@ -435,6 +435,24 @@ h3 {
     align-items: center;
 }
 
+#inspection-records-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.single-inspection-record-box {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.inspection-date-picker {
+    width: 10rem;
+}
+
 /* Connections Page */
 
 #connections-main-box {
