@@ -27,7 +27,8 @@ const mainDescriptionTableAttributes = [
     {label: "IFC Type", object_path: "ifc_type"},
     {label: "Manufacturer", object_path: "property_sets.Identity Data.Manufacturer.value"},
     {label: "Material", object_path: "material"},
-    {label: "Load Bearing", object_path: "property_sets.Pset_BeamCommon.LoadBearing.value", isBoolean: true}
+    {label: "Load Bearing", object_path: "property_sets.Pset_BeamCommon.LoadBearing.value", isBoolean: true},
+    {label: "Is Recycled", object_path: "is_recycled", isBoolean: true},
 ]
 
 type DetailedAttribute = {
@@ -118,6 +119,23 @@ const detailedDescriptionTableAttributes = {
             object_path: "property_sets.Pset_EnvironmentalImpactIndicators.NonRenewableEnergyConsumptionPerUnit.value",
             units: UnitsToString.ELECTRIC_ENERGY
         }
+    ],
+    "Object Condition" : [
+        {
+            label: "Condition",
+            object_path: "property_sets.Pset_Condition.AssessmentCondition.value",
+            units: null
+        },
+        {
+            label: "Assessment Description",
+            object_path: "property_sets.Pset_Condition.AssessmentDescription.value",
+            units: null
+        },
+        {
+            label: "Assessment Date",
+            object_path: "property_sets.Pset_Condition.AssessmentDate.value",
+            units: null
+        },
     ]
 
 } as { [key: string]: DetailedAttribute[] }
@@ -155,11 +173,6 @@ function MainAttributeTable({currObject}: { currObject: LibraryObjectData | null
                         </TableRow>
                     );
                 })}
-
-                <TableRow>
-                    <TableCell>Is Recycled</TableCell>
-                    <TableCell>Yes</TableCell>
-                </TableRow>
             </TableBody>
         </TableWithTitle>
     );
@@ -289,6 +302,11 @@ export default function ViewObject() {
             .catch((error) => console.error("Failed to get objects: ", error));
     }, [object_id])
 
+    useEffect(() => {
+        if (!currObject?.is_recycled) {
+            delete detailedDescriptionTableAttributes["Object Condition"];
+        }
+    }, [currObject])
 
     return (
         <Box id={"view-object-main-box"}>
