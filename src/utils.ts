@@ -28,6 +28,7 @@ export type LibraryObjectData = {
     ifc_type: string;
     manufacturer_link: string;
     ifc_file_path: string;
+    is_recycled: boolean;
     units: Record<string, any>;
     property_sets: Record<string, any>;
 };
