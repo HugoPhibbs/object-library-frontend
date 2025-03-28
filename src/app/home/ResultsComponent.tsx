@@ -42,11 +42,9 @@ function Row({object}: { object: LibraryObjectData }) {
             <TableCell><ObjectImage object_id={object.id} width={200} height={200}/></TableCell>
             <IfcDownloadTableCell object_id={object.id}/>
             <TableCell>
-                {Math.random() > 0.5 ?
+                {object.is_recycled ?
                     <CheckIcon/> : <CrossIcon/>
                 }
-
-
             </TableCell>
         </TableRow>
     );
