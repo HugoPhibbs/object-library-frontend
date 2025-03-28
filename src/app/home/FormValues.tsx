@@ -70,7 +70,7 @@ export class FormValues {
 
         for (const key in formValues.boolean) {
             const val: boolean = formValues.boolean[key]
-            if (val !== null) { // null is a non-present filter
+            if (val !== null &&  val !== undefined) { // null is a non-present filter
                 result[`bool_${key}`] = val ? 1 : 0;
             }
         }

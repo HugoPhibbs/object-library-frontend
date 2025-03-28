@@ -281,7 +281,7 @@ function ControllableTextField({
 function BooleanFilter({control, formLabel, formField}: { control: any, formLabel: string, formField: string }) {
     return (
         <Controller
-            defaultValue={false}
+            defaultValue={null}
             name={`boolean.${formField}`}
             control={control}
             shouldUnregister={true}
