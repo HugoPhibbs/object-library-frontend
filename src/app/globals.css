@@ -453,6 +453,14 @@ h3 {
     width: 10rem;
 }
 
+#custom-id-and-upload-button-box {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
 /* Connections Page */
 
 #connections-main-box {
