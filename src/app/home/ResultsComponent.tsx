@@ -97,9 +97,21 @@ export default function Results({data}: { data: FilteredLibraryResult<LibraryObj
     useEffect(() => {
         const [attributeToSort, sortOrder] = orderBy.split("-") as [string, "asc" | "desc"];
 
-        const path = attributeToSort == "score" ? "score" : "data   ." + attributeToSort;
+        const path = attributeToSort == "score" ? "score" : "data." + attributeToSort;
 
-        setSortedData(_.orderBy(data, [path], [sortOrder]));
+        let sortedDataTemp;
+        if (attributeToSort == "score") {
+            const adjust_object_score = (object: FilteredLibraryResult<LibraryObjectData>) => {
+                // Basically, recycled items with a non-zero score are boosted by 50%, but if they have a zero score (which can happen if there is a boolean search match), they are boosted slightly to ensure they are top of the list
+                const adj_score = (object.data.is_recycled ? 1.5 : 1) * (object.score + 0.001);
+                return {data: object.data, score: adj_score}
+            }
+            const data_copy = data.map((item) => adjust_object_score(item));
+            sortedDataTemp = _.orderBy(data_copy, ["score"], [sortOrder]);
+        } else {
+            sortedDataTemp = _.orderBy(data, [path], [sortOrder]);
+        }
+        setSortedData(sortedDataTemp);
     }, [data, orderBy]);
 
     return (
