@@ -7,15 +7,18 @@ export class FormValues {
     range: Record<FormField, { min: number, max: number }>;
     exact: Record<FormField, { tol?: number, val: number }>;
     match: Record<FormField, string>;
+    boolean: Record<FormField, boolean>;
 
     constructor(search: string,
                 range: Record<FormField, { min: number, max: number }>,
                 exact: Record<FormField, { tol?: number, val: number }>,
-                match: Record<FormField, string>) {
+                match: Record<FormField, string>,
+                boolean: Record<FormField, boolean>) {
         this.search = search;
         this.range = range;
         this.exact = exact;
         this.match = match;
+        this.boolean = boolean;
     }
 
     static zeroOrTruthy(value: any): boolean {
@@ -65,14 +68,26 @@ export class FormValues {
             result[`range_${decodeField(key)}`] = result_string;
         }
 
+        for (const key in formValues.boolean) {
+            const val: boolean = formValues.boolean[key]
+            if (val !== null) { // null is a non-present filter
+                result[`bool_${key}`] = val ? 1 : 0;
+            }
+        }
+
         for (const key in formValues.exact) {
-            let {val, tol} = formValues.exact[key]
+            let val, tol;
+            if (typeof formValues.exact[key] === 'object' && formValues.exact[key] !== null) {
+                ({ val, tol } = formValues.exact[key]);
+            } else {
+                val = formValues.exact[key];
+            }
 
             if (FormValues.zeroOrTruthy(val)) {
                 val = Number(val)
                 if (tol && tol != 0) {
                     tol = Number(tol)
-                    const toleranceValue = ceil(val * tol/100, 1);
+                    const toleranceValue = ceil(val * tol / 100, 1);
 
                     result[`range_${decodeField(key)}`] = `${round(val - toleranceValue, 1)}to${round(val + toleranceValue, 1)}`;
                 } else {
