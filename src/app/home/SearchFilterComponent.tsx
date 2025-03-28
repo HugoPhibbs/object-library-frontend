@@ -10,7 +10,9 @@ import {
     FormLabel,
     Switch,
     TextField,
-    Typography
+    Typography,
+    ToggleButton,
+    ToggleButtonGroup
 } from "@mui/material";
 import {useState} from "react";
 
@@ -154,8 +156,9 @@ function ExactAndRangeSelector({control, formField, attributeData}: {
                 </Box>
                 :
                 <Box className="range-selector">
-                        <ExactSelector control={control} formField={`${formField}.val`} attributeData={attributeData}/>
-                    <ExactSelector control={control} formField={`${formField}.tol`} attributeData={attributeData} labelOverride={"(%) Tol"}/>
+                    <ExactSelector control={control} formField={`${formField}.val`} attributeData={attributeData}/>
+                    <ExactSelector control={control} formField={`${formField}.tol`} attributeData={attributeData}
+                                   labelOverride={"(%) Tol"}/>
                 </Box>
             }
 
@@ -225,9 +228,9 @@ function AttributeGroupFilters({control, attribute_group_id}: {
                             const field = `${attribute_group_id}.${attribute.id}` as FormField;
 
                             return <AttributeInputSelector key={index}
-                                                  control={control}
-                                                  formField={field}
-                                                  attributeData={attribute}
+                                                           control={control}
+                                                           formField={field}
+                                                           attributeData={attribute}
                             />
                         })}
                     </Box>
@@ -275,6 +278,36 @@ function ControllableTextField({
     );
 }
 
+function BooleanFilter({control, formLabel, formField}: { control: any, formLabel: string, formField: string }) {
+    return (
+        <Controller
+            defaultValue={false}
+            name={`boolean.${formField}`}
+            control={control}
+            shouldUnregister={true}
+            render={({field}) => (
+                // <Box display="flex" alignItems="center" gap={"1em"} className={"outline-box"} width={"10em"}>
+                //     <Typography>{formLabel}</Typography>
+                //     <FormControlLabel
+                //         control={<Switch {...field}/>}
+                //         label=""
+                //     />
+                // </Box>
+                <Box display="flex" alignItems="center" gap={"1em"} className={"outline-box"} width={"12em"}>
+                    <Typography>{formLabel}</Typography>
+                    <ToggleButtonGroup value={field.value} exclusive onChange={(_, newValue) => {
+                        field.onChange(field.value === newValue ? null : newValue);
+                    }}
+                    >
+                        <ToggleButton value={1} sx={{ textTransform: "none" }}>Yes</ToggleButton>
+                        <ToggleButton value={0} sx={{ textTransform: "none" }}>No</ToggleButton>
+                    </ToggleButtonGroup>
+                </Box>
+            )}
+        />
+    );
+}
+
 export default function SearchFilter({handleFilterSubmitToParent}: {
     handleFilterSubmitToParent: (formValues: FormValues) => void
 }) {
@@ -316,6 +349,8 @@ export default function SearchFilter({handleFilterSubmitToParent}: {
                 <AttributeGroupFilters key={attribute_group_id} control={control}
                                        attribute_group_id={attribute_group_id}/>
             ))}
+
+            <BooleanFilter control={control} formLabel={"Is Recycled"} formField={"is_recycled"}/>
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>
