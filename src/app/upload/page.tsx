@@ -6,7 +6,9 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
+import ForestIcon from '@mui/icons-material/Forest';
 import {styled} from '@mui/material/styles';
 import {Component, ReactNode, useEffect, useState} from "react";
 import api from "@/api";
@@ -128,7 +130,8 @@ function UploadSingleInspectionRecord({record, dateOnChange, removeOnClick, file
                 />
             </LocalizationProvider>
 
-            <PickFileButton onChange={(e) => fileOnChange(e.target.files?.[0])} label="PDF" StartIcon={<AttachFile/>}
+            <PickFileButton onChange={(e) => fileOnChange(e.target.files?.[0])} label="PDF"
+                            StartIcon={<PictureAsPdfIcon/>}
                             accept_types={[".pdf"]}/>
 
             <IconButton color="error" onClick={removeOnClick}>
@@ -236,35 +239,47 @@ function postInspectionRecords(inspectionRecords: InspectionRecord[], objectId: 
     }
 }
 
-function postObjectPhoto(objectPhoto: File | null, objectId: string) {
-    if (objectPhoto) {
-        const formData = new FormData();
+function postFile(file: File | null, endpoint: string) {
+    if (!file) return;
 
-        formData.append("file", objectPhoto);
+    const formData = new FormData();
+    formData.append("file", file);
 
-        api.post(`/object/${objectId}/photo`, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        }).then((response) => {
-            console.log("Object photo uploaded: ", response.data);
-        }).catch((error) => {
-            console.error("Failed to upload object photo: ", error);
-        });
-    }
+    api.post(endpoint, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    }).then((response) => {
+        console.log(`File uploaded to ${endpoint}:`, response.data);
+    }).catch((error) => {
+        console.error(`Failed to upload file to ${endpoint}:`, error);
+    });
+}
+
+function postObjectPhoto(file: File | null, objectId: string) {
+    return postFile(file, `/object/${objectId}/photo`);
+}
+
+function postEnvironmentalImpact(file: File | null, objectId: string) {
+    return postFile(file, `/object/${objectId}/environmental-impact`);
+}
+
+function postManufacturersBooklet(file: File | null, objectId: string) {
+    return postFile(file, `/object/${objectId}/manufacturers-booklet`);
 }
 
 export default function UploadPage() {
 
     const [ifcFile, setIfcFile] = useState<File | null>(null);
     const [objectPhoto, setObjectPhoto] = useState<File | null>(null);
-    const [fileName, setFileName] = useState<string>("");
+    const [environmentalImpactPdf, setEnvironmentalImpactPdf] = useState<File | null>(null);
+    const [manufacturersBookletPdf, setManufacturersBookletPdf] = useState<File | null>(null);
+    const [ifcFileName, setIfcFileName] = useState<string>("");
     const [customID, setCustomID] = useState<string>("");
     const [fileUploaded, setFileUploaded] = useState<boolean>(false);
     const [fileUploadError, setFileUploadError] = useState<boolean>(false);
     const [fileUpdatedOrCreated, setFileUpdatedOrCreated] = useState<boolean>(false);
     const [createdObjectId, setCreatedObjectId] = useState<string>("");
-
     const [inspectionRecords, setInspectionRecords] = useState<{ date: Dayjs | null, file?: File }[]>([{
         date: null,
         file: undefined
@@ -274,18 +289,12 @@ export default function UploadPage() {
         if (event.target.files?.[0]) {
             const newIfcFile = event.target.files[0];
             setIfcFile(newIfcFile);
-            setFileName(newIfcFile.name);
+            setIfcFileName(newIfcFile.name);
             setFileUploaded(false);
             setFileUploadError(false);
             setFileUpdatedOrCreated(false);
         }
     };
-
-    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) {
-            setObjectPhoto(e.target.files[0]);
-        }
-    }
 
     const handleUpload = () => {
         if (ifcFile) {
@@ -297,8 +306,10 @@ export default function UploadPage() {
         if (fileUploaded && createdObjectId) {
             postInspectionRecords(inspectionRecords, createdObjectId);
             postObjectPhoto(objectPhoto, createdObjectId);
+            postEnvironmentalImpact(environmentalImpactPdf, createdObjectId);
+            postManufacturersBooklet(manufacturersBookletPdf, createdObjectId);
         }
-    }, [fileUploaded, createdObjectId, inspectionRecords, objectPhoto]);
+    }, [fileUploaded, createdObjectId, inspectionRecords, objectPhoto, environmentalImpactPdf, manufacturersBookletPdf]);
 
     const customIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCustomID(event.target.value);
@@ -327,23 +338,29 @@ export default function UploadPage() {
 
                 <Box id={"pick-upload-button-box"}>
                     <Box id={"pick-files-box"}>
-                        <PickFileButton onChange={handleIfcFileChange} StartIcon={<IfcIcon/>} label={"Pick IFC File"}
+                        <PickFileButton onChange={handleIfcFileChange} StartIcon={<IfcIcon/>} label={"IFC File"}
                                         accept_types={[".ifc"]}/>
 
-                        <PickFileButton onChange={handlePhotoChange} StartIcon={<InsertPhotoIcon/>}
-                                        label={"Pick Photo File"}
+                        <PickFileButton onChange={(e) => setObjectPhoto(e.target.files?.[0])} StartIcon={<InsertPhotoIcon/>}
+                                        label={"Photo"}
                                         accept_types={[".png"]}/>
+                        <PickFileButton onChange={(e) => setEnvironmentalImpactPdf(e.target.files?.[0])} label={"Environmental Statement"}
+                                        StartIcon={<ForestIcon/>} accept_types={[".pdf"]}/>
+
+                        <PickFileButton onChange={(e) => setManufacturersBookletPdf(e.target.files?.[0])}
+                                        label={"Manufacturer's Booklet"} StartIcon={<AttachFile/>}
+                                        accept_types={[".pdf"]}/>
                     </Box>
 
-                    <TextField onChange={customIdChange} label={"Enter Custom ID"}></TextField>
 
                     <UploadInspectionRecords inspectionRecords={inspectionRecords}
                                              setInspectionRecords={setInspectionRecords}/>
 
-                    <Box>
+                    <Box id={"custom-id-and-upload-button-box"}>
+                        <TextField onChange={customIdChange} label={"Enter Custom ID"}></TextField>
                         <UploadButton onClick={handleUpload}
-                                      disabled={!fileName || fileUploaded || fileUploadError}
-                                      fileName={fileName}
+                                      disabled={!ifcFileName || fileUploaded || fileUploadError}
+                                      fileName={ifcFileName}
                                       fileUploaded={fileUploaded}
                                       fileUploadError={fileUploadError}
                                       fileUpdatedOrCreated={fileUpdatedOrCreated}
