@@ -12,7 +12,8 @@ import {
     TextField,
     Typography,
     ToggleButton,
-    ToggleButtonGroup
+    ToggleButtonGroup,
+    MenuItem
 } from "@mui/material";
 import {useState} from "react";
 
@@ -64,7 +65,8 @@ const primaryFilters: Record<string, AttributeMetadata> = {
     }
 }
 
-const attributeGroups: Record<string, AttributeGroupMetadata> = {
+// Attribute groups where you input a range or exact value. Correspond to IFC property sets
+const inputAttributeGroups: Record<string, AttributeGroupMetadata> = {
     "Dimensions": {
         label: "Dimensions",
         attributes: [
@@ -190,13 +192,48 @@ function AttributeInputSelector({control, formField, attributeData}: {
                 </Box>
             </FormControl>
         </Box>
-    )
-        ;
+    );
 }
 
-function AttributeGroupFilters({control, attribute_group_id}: {
+function AttributeGroupInputFilters({control, attributeGroupId}: {
     control: any,
-    attribute_group_id: string
+    attributeGroupId: string
+}) {
+    const attributeGroup = inputAttributeGroups[attributeGroupId];
+    const attributes = attributeGroup.attributes;
+
+    return (
+        <CollapsibleFormGroup formGroupLabel={attributeGroup.label}>
+            <AttributeGroupInputSelectors attributes={attributes} attributeGroupId={attributeGroupId}
+                                          formControl={control}/>
+        </CollapsibleFormGroup>
+    )
+}
+
+
+function AttributeGroupInputSelectors({attributes, attributeGroupId, formControl}: {
+    attributes: AttributeMetadata[],
+    attributeGroupId: string,
+    formControl: any
+}) {
+    return (
+        <Box className="input-attributes-group">
+            {attributes.map((attribute, index) => {
+                const field = `${attributeGroupId}.${attribute.id}` as FormField;
+
+                return <AttributeInputSelector key={index}
+                                               control={formControl}
+                                               formField={field}
+                                               attributeData={attribute}
+                />
+            })}
+        </Box>
+    )
+}
+
+function CollapsibleFormGroup({formGroupLabel, children}: {
+    formGroupLabel: string,
+    children?: any
 }) {
     const [open, setOpen] = useState(false);
 
@@ -204,58 +241,43 @@ function AttributeGroupFilters({control, attribute_group_id}: {
         setOpen(!open);
     }
 
-    const attributeGroup = attributeGroups[attribute_group_id];
-    const attributes = attributeGroup.attributes;
-
     return (
         <Box className="outline-box">
             <FormControl>
-                {/*<FormLabel className="input-attributes-group-label">{attributeGroup.label}</FormLabel>*/}
-
                 <FormLabel className="input-attributes-group-label">
                     <Box display="flex" alignItems="center">
 
                         <Button startIcon={open ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>} onClick={handleToggle}
-                                className={"attribute-group-label-button"}>
-                            {attributeGroup.label}
+                                className={"collapsible-form-group-toggle-button"}>
+                            {formGroupLabel}
                         </Button>
                     </Box>
                 </FormLabel>
 
                 <Collapse in={open}>
-                    <Box className="input-attributes-group">
-                        {attributes.map((attribute, index) => {
-                            const field = `${attribute_group_id}.${attribute.id}` as FormField;
-
-                            return <AttributeInputSelector key={index}
-                                                           control={control}
-                                                           formField={field}
-                                                           attributeData={attribute}
-                            />
-                        })}
-                    </Box>
+                    {children}
                 </Collapse>
-
             </FormControl>
         </Box>
     )
 }
 
-function ControllableTextField({
-                                   name,
-                                   control,
-                                   attributeData,
-                                   fieldType = "number",
-                                   className = "small-input-text-field",
-                                   labelOverride,
-                               }: {
-    name: string,
-    control: any,
-    attributeData: AttributeMetadata,
-    fieldType?: string
-    className?: string
-    labelOverride?: string
-}) {
+function ControllableTextField(
+    {
+        name,
+        control,
+        attributeData,
+        fieldType = "number",
+        className = "small-input-text-field",
+        labelOverride,
+    }: {
+        name: string,
+        control: any,
+        attributeData: AttributeMetadata,
+        fieldType?: string
+        className?: string
+        labelOverride?: string
+    }) {
     return (
         <Controller
             defaultValue=""
@@ -278,7 +300,13 @@ function ControllableTextField({
     );
 }
 
-function BooleanFilter({control, formLabel, formField}: { control: any, formLabel: string, formField: string }) {
+function BooleanFilter({control, formLabel, formField, onAfterChangeCallback}: {
+    control: any,
+    formLabel: string,
+    formField: string,
+    onAfterChangeCallback?: (e: any, newVal: any) => void
+}) {
+    // onAfterChangeCallback called after onChange. Used to update other form elements
     return (
         <Controller
             defaultValue={null}
@@ -286,21 +314,15 @@ function BooleanFilter({control, formLabel, formField}: { control: any, formLabe
             control={control}
             shouldUnregister={true}
             render={({field}) => (
-                // <Box display="flex" alignItems="center" gap={"1em"} className={"outline-box"} width={"10em"}>
-                //     <Typography>{formLabel}</Typography>
-                //     <FormControlLabel
-                //         control={<Switch {...field}/>}
-                //         label=""
-                //     />
-                // </Box>
                 <Box display="flex" alignItems="center" gap={"1em"} className={"outline-box"} width={"12em"}>
                     <Typography>{formLabel}</Typography>
-                    <ToggleButtonGroup value={field.value} exclusive onChange={(_, newValue) => {
+                    <ToggleButtonGroup value={field.value} exclusive onChange={(e, newValue) => {
                         field.onChange(field.value === newValue ? null : newValue);
+                        onAfterChangeCallback?.(e, newValue);
                     }}
                     >
-                        <ToggleButton value={1} sx={{ textTransform: "none" }}>Yes</ToggleButton>
-                        <ToggleButton value={0} sx={{ textTransform: "none" }}>No</ToggleButton>
+                        <ToggleButton value={1} sx={{textTransform: "none"}}>Yes</ToggleButton>
+                        <ToggleButton value={0} sx={{textTransform: "none"}}>No</ToggleButton>
                     </ToggleButtonGroup>
                 </Box>
             )}
@@ -308,14 +330,58 @@ function BooleanFilter({control, formLabel, formField}: { control: any, formLabe
     );
 }
 
+function DropdownFilter({control, formLabel, formField, options, filterType = "match", disabled}: {
+    control: any,
+    formLabel: string,
+    formField: string,
+    options: string[],
+    filterType: string,
+    disabled?: boolean
+}) {
+    return (
+        <Controller
+            defaultValue=""
+            name={`${filterType}.${encodeField(formField)}`}
+            control={control}
+            shouldUnregister={true}
+            disabled={disabled ?? false}
+            render={({field}) => (
+                <FormControl>
+                    <Box flexDirection={"row"} display={"flex"} gap={"1em"} alignItems={"center"}>
+                        <FormLabel>{formLabel}</FormLabel>
+                        <TextField select {...field}>
+                            {options.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
+                    </Box>
+                </FormControl>
+            )}
+        />
+    );
+}
+
+//
+// ts-expect-error TS71007
 export default function SearchFilter({handleFilterSubmitToParent}: {
     handleFilterSubmitToParent: (formValues: FormValues) => void
 }) {
-    const {register, handleSubmit, reset, watch, control} = useForm<FormValues>({
+    const {handleSubmit, reset, control} = useForm<FormValues>({
         defaultValues: {
             search: undefined,
         }
     });
+
+    const [conditionDropdownVisible, setConditionDropdownVisible] = useState(false);
+
+    const handleIsRecycledChange = (_: any, newIsRecycled: any) => {
+        setConditionDropdownVisible(newIsRecycled);
+    }
+
+    const objectConditionOptions = ["Good", "Fair", "Poor", "Excellent", "Critical"];
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         handleFilterSubmitToParent(data);
@@ -336,21 +402,36 @@ export default function SearchFilter({handleFilterSubmitToParent}: {
                 <Button type="button" onClick={handleReset} variant="outlined" color="error">Reset</Button>
             </Box>
 
-            <ControllableTextField name={"match.search"} control={control} attributeData={primaryFilters.search}
+            <ControllableTextField name={"match.should.search"} control={control} attributeData={primaryFilters.search}
                                    className={"large-input-text-field"} fieldType={"text"}/>
 
-            <ControllableTextField name={"match.name"} control={control} attributeData={primaryFilters.name}
+            <ControllableTextField name={"match.should.name"} control={control} attributeData={primaryFilters.name}
                                    className={"large-input-text-field"} fieldType={"text"}/>
 
-            <ControllableTextField name={"match.material"} control={control} attributeData={primaryFilters.material}
+            <ControllableTextField name={"match.should.material"} control={control} attributeData={primaryFilters.material}
                                    className={"large-input-text-field"} fieldType={"text"}/>
 
-            {Object.entries(attributeGroups).map(([attribute_group_id, _]) => (
-                <AttributeGroupFilters key={attribute_group_id} control={control}
-                                       attribute_group_id={attribute_group_id}/>
+            {Object.entries(inputAttributeGroups).map(([attributeGroupId, _]) => (
+                <AttributeGroupInputFilters key={attributeGroupId} control={control}
+                                            attributeGroupId={attributeGroupId}/>
             ))}
 
-            <BooleanFilter control={control} formLabel={"Is Recycled"} formField={"is_recycled"}/>
+            <CollapsibleFormGroup formGroupLabel={"Recycle Information"}>
+                <Box display={"flex"} gap={"1em"} flexDirection={"row"}>
+                    <BooleanFilter control={control} formLabel={"Is Recycled"} formField={"is_recycled"}
+                                   onAfterChangeCallback={handleIsRecycledChange}/>
+
+                    <Box className={"outline-box"} display={"flex"} alignItems={"center"} gap={"1em"}
+                         flexDirection={"row"} visibility={conditionDropdownVisible ? "visible" : "hidden"}>
+                        <DropdownFilter control={control} formLabel={"Condition"}
+                                        formField={"Pset_Condition.AssessmentCondition"}
+                                        options={objectConditionOptions}
+                                        filterType={"match.must"}
+                                        />
+                                        {/*disabled={!conditionDropdownVisible}/>*/}
+                    </Box>
+                </Box>
+            </CollapsibleFormGroup>
 
             <Button type="submit" variant="contained">Search</Button>
         </Box>

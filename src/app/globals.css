@@ -290,7 +290,7 @@ h3 {
     gap: 1rem;
 }
 
-.attribute-group-label-button {
+.collapsible-form-group-toggle-button {
     font-weight: bold !important;
     color: black !important;
     text-transform: none !important;

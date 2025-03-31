@@ -6,13 +6,13 @@ export class FormValues {
     search?: string;
     range: Record<FormField, { min: number, max: number }>;
     exact: Record<FormField, { tol?: number, val: number }>;
-    match: Record<FormField, string>;
+    match: Record<FormField, Record<FormField, string>>;
     boolean: Record<FormField, boolean>;
 
     constructor(search: string,
                 range: Record<FormField, { min: number, max: number }>,
                 exact: Record<FormField, { tol?: number, val: number }>,
-                match: Record<FormField, string>,
+                match: Record<string, Record<FormField, string>>,
                 boolean: Record<FormField, boolean>) {
         this.search = search;
         this.range = range;
@@ -35,12 +35,30 @@ export class FormValues {
             result["search"] = formValues.search;
         }
 
-        for (const key in formValues.match) {
-            const typedKey = key as FormField;
-            const value = formValues.match[typedKey];
+        function addMatchFilter(field: FormField, value: string, isMustMatch: boolean = false) {
+            const decoded_field = decodeField(field);
+            if (FormValues.zeroOrTruthy(value)) {
+                let resultPath = `match_${decoded_field}`;
+                if (isMustMatch) {
+                    resultPath = `must_${resultPath}`;
+                }
+                result[resultPath] = value;
+            }
+        }
+
+        for (const field in formValues.match.should) {
+            const value = formValues.match.should[field];
 
             if (FormValues.zeroOrTruthy(value)) {
-                result[`match_${decodeField(key)}`] = formValues.match[typedKey];
+                result[`match_${decodeField(field)}`] = value;
+            }
+        }
+
+        for (const key in formValues.match.must) {
+            const value = formValues.match.must[key];
+
+            if (FormValues.zeroOrTruthy(value)) {
+                result[`must_match_${decodeField(key)}`] = value;
             }
         }
 
@@ -70,7 +88,7 @@ export class FormValues {
 
         for (const key in formValues.boolean) {
             const val: boolean = formValues.boolean[key]
-            if (val !== null &&  val !== undefined) { // null is a non-present filter
+            if (val !== null && val !== undefined) { // null is a non-present filter
                 result[`bool_${key}`] = val ? 1 : 0;
             }
         }
@@ -78,7 +96,7 @@ export class FormValues {
         for (const key in formValues.exact) {
             let val, tol;
             if (typeof formValues.exact[key] === 'object' && formValues.exact[key] !== null) {
-                ({ val, tol } = formValues.exact[key]);
+                ({val, tol} = formValues.exact[key]);
             } else {
                 val = formValues.exact[key];
             }
