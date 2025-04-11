@@ -21,6 +21,7 @@ import {booleanToYesNo, LibraryObjectData, UnitsToString} from "@/utils";
 import {useForm} from "react-hook-form";
 import Link from "next/link";
 import {saveAs} from "file-saver";
+import BeamProfile from "@/components/BeamProfile";
 
 const mainDescriptionTableAttributes = [
     {label: "ID", object_path: "id"},
@@ -120,7 +121,7 @@ const detailedDescriptionTableAttributes = {
             units: UnitsToString.ELECTRIC_ENERGY
         }
     ],
-    "Object Condition" : [
+    "Object Condition": [
         {
             label: "Condition",
             object_path: "property_sets.Pset_Condition.AssessmentCondition.value",
@@ -273,7 +274,8 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
                 </TableRow>
                 <TableRow>
                     <TableCell>Inspection Records</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleInspectionRecordsDownload} label={"PDF"}
+                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleInspectionRecordsDownload}
+                                       label={"PDF"}
                                        dropdownOptions={["Nov-24", "Nov-23", "Nov-22"]} dropDownLabel={"Date"}/>
                 </TableRow>
                 <TableRow>
@@ -312,9 +314,13 @@ export default function ViewObject() {
         <Box id={"view-object-main-box"}>
 
             <Box id={"view-object-secondary-box"}>
-                <ObjectImage object_id={object_id} width={500} height={500}
-                             imgID={"large-view-object-img"}/>
+                {
+                    currObject?.ifc_type == "IfcBeam" ?
+                        <BeamProfile object={currObject}/> :
+                        <ObjectImage object_id={object_id} width={500} height={500}
+                                     imgID={"large-view-object-img"}/>
 
+                }
                 <Paper id={"main-description-box"}>
                     <h2 className={"sub-title"}>{currObject?.name}</h2>
 
