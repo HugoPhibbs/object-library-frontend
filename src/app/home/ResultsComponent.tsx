@@ -37,10 +37,10 @@ const columns: ColumnData[] = [
 function Row({object}: { object: LibraryObjectData }) {
     return (
         <TableRow hover>
-            <TableCell><ViewObjectLink object_id={object.id} label={object.name}/></TableCell>
+            <TableCell><ViewObjectLink objectID={object.id} label={object.name}/></TableCell>
             <TableCell>{object.material}</TableCell>
-            <TableCell><ObjectImage object_id={object.id} width={200} height={200}/></TableCell>
-            <IfcDownloadTableCell object_id={object.id}/>
+            <TableCell><ObjectImage objectID={object.id} width={200} height={200}/></TableCell>
+            <IfcDownloadTableCell objectID={object.id}/>
             <TableCell>
                 {object.is_recycled ?
                     <CheckIcon/> : <CrossIcon/>
@@ -50,9 +50,9 @@ function Row({object}: { object: LibraryObjectData }) {
     );
 }
 
-function ViewObjectLink({object_id, label}: { object_id: string, label?: string }) {
-    return <MuiLink className={"view-object-link"} component={Link} href={`/object/${object_id}`} underline="always">
-        {label ? label : object_id} <OpenInNewIcon fontSize="small" sx={{ml: 0.5}} color={"primary"}/>
+function ViewObjectLink({objectID, label}: { objectID: string, label?: string }) {
+    return <MuiLink className={"view-object-link"} component={Link} href={`/object/${objectID}`} underline="always">
+        {label ? label : objectID} <OpenInNewIcon fontSize="small" sx={{ml: 0.5}} color={"primary"}/>
     </MuiLink>
 }
 

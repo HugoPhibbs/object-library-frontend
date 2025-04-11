@@ -8,8 +8,8 @@ import {Box, Button, FormControl, InputLabel, MenuItem, Select, TableCell} from 
 import DownloadIcon from "@mui/icons-material/Download";
 import {Controller} from "react-hook-form";
 
-export function ObjectImage({object_id, width, height, imgClassName, imgID}: {
-    object_id: string,
+export function ObjectImage({objectID, width, height, imgClassName, imgID}: {
+    objectID: string,
     width: number,
     height: number,
     imgClassName?: string
@@ -17,15 +17,13 @@ export function ObjectImage({object_id, width, height, imgClassName, imgID}: {
 }) {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-    const apiURL = `/object/${object_id}/photo`;
-
     useEffect(() => {
-        api.get(apiURL, {responseType: "blob"})
+        api.get(`/object/${objectID}/photo`, {responseType: "blob"})
             .then((response) => {
                 setImageUrl(URL.createObjectURL(response.data));
             })
             .catch((e) => console.error("Failed to download photo:", e));
-    }, [apiURL]);
+    });
 
     if (!imageUrl) {
         return <span>Loading...</span>;
@@ -34,8 +32,8 @@ export function ObjectImage({object_id, width, height, imgClassName, imgID}: {
     return <Image src={imageUrl} alt="Object" width={width} height={height} className={imgClassName} id={imgID}/>;
 }
 
-export function DownloadTableCell({object_id, handleDownload, label, dropdownOptions, StartIcon, dropDownLabel}: {
-    object_id?: string,
+export function DownloadTableCell({objectID, handleDownload, label, dropdownOptions, StartIcon, dropDownLabel}: {
+    objectID?: string,
     handleDownload: any,
     label: string,
     dropdownOptions?: string[],
@@ -67,25 +65,25 @@ export function DownloadTableCell({object_id, handleDownload, label, dropdownOpt
             }
 
             <Button variant="contained" size="small" startIcon={StartIcon ? <StartIcon/> : <DownloadIcon/>}
-                    onClick={() => dropdownOptions ? handleDownload(object_id, dropdownOption) : handleDownload(object_id)}>{label}
+                    onClick={() => dropdownOptions ? handleDownload(objectID, dropdownOption) : handleDownload(objectID)}>{label}
             </Button>
         </Box>
     </TableCell>
 }
 
-export function IfcDownloadTableCell({object_id}: { object_id?: string }) {
+export function IfcDownloadTableCell({objectID}: { objectID?: string }) {
 
-    async function handleDownload(object_id: string) {
+    async function handleDownload(objectID: string) {
         try {
-            const apiResponse = await api.get(`/object/${object_id}`, {params: {format: "ifc"}})
+            const apiResponse = await api.get(`/object/${objectID}`, {params: {format: "ifc"}})
             const blob = new Blob([apiResponse.data])
-            saveAs(blob, `${object_id}.ifc`)
+            saveAs(blob, `${objectID}.ifc`)
         } catch (e) {
             console.error("Failed to download file: ", e)
         }
     }
 
-    return <DownloadTableCell object_id={object_id} handleDownload={handleDownload} label={"IFC"} StartIcon={IfcIcon}/>
+    return <DownloadTableCell objectID={objectID} handleDownload={handleDownload} label={"IFC"} StartIcon={IfcIcon}/>
 }
 
 export function IfcIcon({width = 36, height = 36}: { width?: number, height?: number }) {

@@ -222,42 +222,53 @@ function CollapsableGroupedAttributesTable({currObject, attributeGroupName, attr
 }
 
 function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }) {
+    const [inspectionRecordDates, setInspectionRecordDates] = React.useState<string[]>([]);
 
-    const handleEnvironmentalImpactDownload = (object_id: any) => {
-        api.get(`/object/${object_id}/environmental-impact`, {responseType: "blob"})
+
+    const handleEnvironmentalImpactDownload = (objectID: any) => {
+        api.get(`/object/${objectID}/environmental-impact`, {responseType: "blob"})
             .then((response) => {
                 const blob = new Blob([response.data], {type: "application/pdf"});
-                saveAs(blob, `${object_id}_environmental_impact.pdf`);
+                saveAs(blob, `${objectID}_environmental_impact.pdf`);
             }).catch((error) => {
             console.error("Failed to download environmental impact report: ", error);
         })
     }
 
-    const handleManufacturersBookletDownload = (object_id: any) => {
-        api.get(`/object/${object_id}/manufacturers-booklet`, {responseType: "blob"})
+    const handleManufacturersBookletDownload = (objectID: any) => {
+        api.get(`/object/${objectID}/manufacturers-booklet`, {responseType: "blob"})
             .then((response) => {
                 const blob = new Blob([response.data], {type: "application/pdf"});
-                saveAs(blob, `${object_id}_manufacturers_booklet.pdf`);
+                saveAs(blob, `${objectID}_manufacturers_booklet.pdf`);
             })
             .catch((error) => {
                 console.error("Failed to download manufacturer's booklet: ", error);
             })
     }
 
-    const handleInspectionRecordsDownload = (object_id: any, date: string) => {
+    const handleInspectionRecordsDownload = (objectID: any, date: string) => {
         if (!date) {
             console.error("No date selected for inspection record download");
             return;
         }
 
-        api.get(`/object/${object_id}/inspection-record`, {responseType: "blob", params: {"date": date}})
+        api.get(`/object/${objectID}/inspection-record`, {responseType: "blob", params: {"date": date}})
             .then((response) => {
                 const blob = new Blob([response.data], {type: "application/pdf"});
-                saveAs(blob, `${object_id}_inspection_record_${date}.pdf`);
+                saveAs(blob, `${objectID}_inspection_record_${date}.pdf`);
             }).catch((error) => {
             console.error("Failed to download inspection record: ", error);
         })
     }
+
+    useEffect(() => {
+        if (!currObject) return;
+
+        api.get(`/object/${currObject.id}/inspection-record-dates`)
+            .then((response => {
+                setInspectionRecordDates(response.data);
+            }))
+    }, [inspectionRecordDates, currObject]);
 
     return (
         <TableWithTitle id={"object-files-table"} title="Object Files">
@@ -270,22 +281,22 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
             <TableBody>
                 <TableRow>
                     <TableCell>IFC File</TableCell>
-                    <IfcDownloadTableCell object_id={currObject?.id}/>
+                    <IfcDownloadTableCell objectID={currObject?.id}/>
                 </TableRow>
                 <TableRow>
                     <TableCell>Inspection Records</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleInspectionRecordsDownload}
+                    <DownloadTableCell objectID={currObject?.id} handleDownload={handleInspectionRecordsDownload}
                                        label={"PDF"}
-                                       dropdownOptions={["Nov-24", "Nov-23", "Nov-22"]} dropDownLabel={"Date"}/>
+                                       dropdownOptions={inspectionRecordDates} dropDownLabel={"Date"}/>
                 </TableRow>
                 <TableRow>
                     <TableCell>Manufacturer&#39;s Booklet</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleManufacturersBookletDownload}
+                    <DownloadTableCell objectID={currObject?.id} handleDownload={handleManufacturersBookletDownload}
                                        label={"PDF"}/>
                 </TableRow>
                 <TableRow>
                     <TableCell>Environmental Impact Assessment</TableCell>
-                    <DownloadTableCell object_id={currObject?.id} handleDownload={handleEnvironmentalImpactDownload}
+                    <DownloadTableCell objectID={currObject?.id} handleDownload={handleEnvironmentalImpactDownload}
                                        label={"PDF"}/>
                 </TableRow>
             </TableBody>
@@ -296,16 +307,16 @@ function ObjectFilesTable({currObject}: { currObject: LibraryObjectData | null }
 export default function ViewObject() {
     const [currObject, setCurrObject] = React.useState<LibraryObjectData | null>(null);
 
-    const {object_id} = useParams<{ object_id: string }>();
+    const {objectID} = useParams<{ objectID: string }>();
 
     useEffect(() => {
-        api.get(`/object/${object_id}`)
+        api.get(`/object/${objectID}`)
             .then((response) => setCurrObject(response.data))
             .catch((error) => console.error("Failed to get objects: ", error));
-    }, [object_id])
+    }, [objectID])
 
     useEffect(() => {
-        if (!currObject?.is_recycled) {
+        if (currObject && !currObject.is_recycled) {
             delete detailedDescriptionTableAttributes["Object Condition"];
         }
     }, [currObject])
@@ -317,7 +328,7 @@ export default function ViewObject() {
                 {
                     currObject?.ifc_type == "IfcBeam" ?
                         <BeamProfile object={currObject}/> :
-                        <ObjectImage object_id={object_id} width={500} height={500}
+                        <ObjectImage objectID={objectID} width={500} height={500}
                                      imgID={"large-view-object-img"}/>
 
                 }

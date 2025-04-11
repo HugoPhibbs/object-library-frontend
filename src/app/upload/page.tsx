@@ -205,7 +205,7 @@ function postIFCFile(ifcFile: File, customID: string, setFileUploaded: any, setF
         setFileUploaded(true);
         setFileUploadError(false);
 
-        const newObjectId = response.data.object_id
+        const newObjectId = response.data.object_id // API uses snake case
         setCreatedObjectId(newObjectId);
 
         if (response.status === 201) setFileUpdatedOrCreated(false); else setFileUpdatedOrCreated(true);
@@ -217,7 +217,7 @@ function postIFCFile(ifcFile: File, customID: string, setFileUploaded: any, setF
     });
 }
 
-function postInspectionRecords(inspectionRecords: InspectionRecord[], objectId: string) {
+function postInspectionRecords(inspectionRecords: InspectionRecord[], objectID: string) {
     for (const record of inspectionRecords) {
         if (record.date && record.file) {
             const formData = new FormData();
@@ -226,7 +226,7 @@ function postInspectionRecords(inspectionRecords: InspectionRecord[], objectId: 
             formData.append("file", record.file);
             formData.append("date", dateString);
 
-            api.post(`/object/${objectId}/inspection-record`, formData, {
+            api.post(`/object/${objectID}/inspection-record`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -256,16 +256,16 @@ function postFile(file: File | null, endpoint: string) {
     });
 }
 
-function postObjectPhoto(file: File | null, objectId: string) {
-    return postFile(file, `/object/${objectId}/photo`);
+function postObjectPhoto(file: File | null, objectID: string) {
+    return postFile(file, `/object/${objectID}/photo`);
 }
 
-function postEnvironmentalImpact(file: File | null, objectId: string) {
-    return postFile(file, `/object/${objectId}/environmental-impact`);
+function postEnvironmentalImpact(file: File | null, objectID: string) {
+    return postFile(file, `/object/${objectID}/environmental-impact`);
 }
 
-function postManufacturersBooklet(file: File | null, objectId: string) {
-    return postFile(file, `/object/${objectId}/manufacturers-booklet`);
+function postManufacturersBooklet(file: File | null, objectID: string) {
+    return postFile(file, `/object/${objectID}/manufacturers-booklet`);
 }
 
 export default function UploadPage() {
