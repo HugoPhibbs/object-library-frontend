@@ -23,7 +23,7 @@ export function ObjectImage({objectID, width, height, imgClassName, imgID}: {
                 setImageUrl(URL.createObjectURL(response.data));
             })
             .catch((e) => console.error("Failed to download photo:", e));
-    });
+    }, [objectID]);
 
     if (!imageUrl) {
         return <span>Loading...</span>;

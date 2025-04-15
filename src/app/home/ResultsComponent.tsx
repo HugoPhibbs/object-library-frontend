@@ -34,7 +34,7 @@ const columns: ColumnData[] = [
     {id: "recycle", label: "Recycled", canSort: false},
 ];
 
-function Row({object}: { object: LibraryObjectData }) {
+function ResultRow({object}: { object: LibraryObjectData }) {
     return (
         <TableRow hover>
             <TableCell><ViewObjectLink objectID={object.id} label={object.name}/></TableCell>
@@ -133,7 +133,7 @@ export default function Results({data}: { data: FilteredLibraryResult<LibraryObj
                     </TableHead>
                     <TableBody>
                         {sortedData.map((object: FilteredLibraryResult<LibraryObjectData>, index) => (
-                            <Row key={index} object={object.data}/>
+                            <ResultRow key={index} object={object.data}/>
                         ))}
                     </TableBody>
                 </Table>
